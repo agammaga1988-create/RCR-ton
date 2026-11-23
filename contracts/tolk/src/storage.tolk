@@ -4,11 +4,19 @@ struct WalletStorage {
     minterAddress: address
 }
 
+struct PendingMintRecord {
+    issuerAddress: address
+    recipient: address
+    amount: coins
+    isMining: bool
+}
+
 struct MinterExtra {
     publicIssuerAddress: address
     miningIssuerAddress: address?
     publicIssued: coins
     miningIssued: coins
+    pendingMints: map<uint64, PendingMintRecord>
 }
 
 struct MinterStorage {
