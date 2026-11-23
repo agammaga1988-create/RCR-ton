@@ -14,7 +14,7 @@ const JETTON_DEFAULT_NAME = "RCR"
 const JETTON_DEFAULT_SYMBOL = "RCR"
 const JETTON_DEFAULT_DESCRIPTION = "RCR token on TON"
 const JETTON_DEFAULT_IMAGE = ""
-const JETTON_DEFAULT_DECIMALS = ""
+const JETTON_DEFAULT_DECIMALS = "9"
 const JETTON_DEFAULT_UPDATED_DESCRIPTION = "Sample jetton (metadata updated from acton-contracts scripts)"
 
 
@@ -109,6 +109,7 @@ fun promptJettonMinterStorage(admin: address): MinterStorage {
     val maxSupply = rcrMaxSupplyBaseUnits(decimals);
     return {
         totalSupply: 0,
+        totalMinted: 0,
         maxSupply,
         adminAddress: admin,
         nextAdminAddress: null,
