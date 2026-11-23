@@ -166,3 +166,18 @@ test("production current-session endpoint fails closed without PostgreSQL", asyn
     assert.equal((await response.json()).error, "database_not_configured");
   } finally { child.kill("SIGTERM"); }
 });
+
+test("API CORS allows only the configured HTTPS Mini App origin", async () => {
+  const { child, port } = await startApi({ RCR_PUBLIC_URL: "https://rcr.example" });
+  try {
+    const base = "http://127.0.0.1:" + port;
+    const allowed = await fetch(base + "/sessions", {
+      method: "OPTIONS",
+      headers: { Origin: "https://rcr.example", "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "content-type" },
+    });
+    assert.equal(allowed.status, 204);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://rcr.example");
+    const denied = await fetch(base + "/sessions", { method: "OPTIONS", headers: { Origin: "https://attacker.example" } });
+    assert.equal(denied.status, 403);
+  } finally { child.kill("SIGTERM"); }
+});
