@@ -4,17 +4,21 @@ struct WalletStorage {
     minterAddress: address
 }
 
-struct MinterStorage {
-    totalSupply: coins
-    totalMinted: coins
-    maxSupply: coins
+struct MinterExtra {
     publicIssuerAddress: address
     miningIssuerAddress: address?
     publicIssued: coins
     miningIssued: coins
+}
+
+struct MinterStorage {
+    totalSupply: coins
+    totalMinted: coins
+    maxSupply: coins
     adminAddress: address?
     nextAdminAddress: address?
     metadata: cell
+    extra: cell
 }
 
 fun MinterStorage.load(): MinterStorage {
