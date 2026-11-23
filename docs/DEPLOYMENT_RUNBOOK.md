@@ -36,6 +36,7 @@ Deploy `services/api` as a Node.js 22 service with:
 - `NODE_ENV=production`
 - `DATABASE_URL` pointing to managed PostgreSQL with TLS
 - `TELEGRAM_BOT_TOKEN` stored in the host's encrypted secret manager
+- `RCR_PUBLIC_URL` set to the exact Mini App HTTPS origin (strict CORS allowlist)
 - `HOST=0.0.0.0`
 - a restrictive `PG_POOL_MAX` appropriate to the database plan
 
