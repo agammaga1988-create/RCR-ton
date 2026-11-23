@@ -21,9 +21,6 @@ contract JettonMinter(
     mintable: Bool, // Should be deployed with this flag set to true
     maxSupply: Int as coins,
 ) {
-    init() {
-        require(self.totalSupply <= self.maxSupply, "Initial supply exceeds cap");
-    }
     receive(msg: ProvideWalletAddress) {
         let ownerWorkchain: Int = parseStdAddress(msg.ownerAddress.asSlice()).workchain;
 
