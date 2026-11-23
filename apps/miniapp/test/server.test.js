@@ -29,11 +29,11 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal((await health.json()).ok, true);
     assert.equal(health.headers.get("x-content-type-options"), "nosniff");
     const config = await fetch(base + "/config.js");
-    assert.match(await config.text(), /https:\\/\\/api\\.example\\.test/);
+    assert.match(await config.text(), /https:\/\/api\.example\.test/);
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
     const page = await fetch(base + "/");
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /Telegram-authenticated/);
+    assert.match(await page.text(), /24-hour earning sessions/);
   } finally { child.kill("SIGTERM"); }
 });
 
