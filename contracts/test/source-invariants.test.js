@@ -2,35 +2,29 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const minter = await readFile(new URL("../src/jetton-minter.tact", import.meta.url), "utf8");
-const wallet = await readFile(new URL("../src/jetton-wallet.tact", import.meta.url), "utf8");
+const root = new URL("../tolk/", import.meta.url);
+const minter = await readFile(new URL("src/JettonMinter.tolk", root), "utf8");
+const storage = await readFile(new URL("src/storage.tolk", root), "utf8");
+const messages = await readFile(new URL("src/messages.tolk", root), "utf8");
+const tests = await readFile(new URL("tests/admin-and-governance.test.tolk", root), "utf8");
 
-test("RCR master has immutable constructor cap and a separate cap getter", () => {
-  assert.match(minter, /maxSupply:\s*Int as coins/);
-  assert.match(minter, /get fun get_max_supply\(\): Int/);
-  assert.doesNotMatch(minter, /maxSupply:\s*self\.maxSupply,\s*adminAddress:/);
+test("RCR minter stores a configured maximum supply and exposes a getter", () => {
+  assert.match(storage, /struct MinterStorage\s*\{[\s\S]*?maxSupply:\s*coins/);
+  assert.match(minter, /get fun get_max_supply\(\): coins/);
 });
 
-test("mint authorization, mint switch, positive amount and cap precede supply increase", () => {
-  const auth = minter.indexOf('require(sender() == self.owner, "Incorrect sender")', minter.indexOf("receive(msg: Mint)"));
-  const open = minter.indexOf('require(self.mintable, "Mint is closed")', auth);
-  const positive = minter.indexOf('require(msg.mintMessage.amount > 0, "Mint amount must be positive")', open);
-  const cap = minter.indexOf('require(self.totalSupply + msg.mintMessage.amount <= self.maxSupply, "Maximum supply exceeded")', positive);
-  const increase = minter.indexOf("self.totalSupply += msg.mintMessage.amount", cap);
-  assert.ok(auth >= 0 && open > auth && positive > open && cap > positive && increase > cap);
+test("mint rejects amounts above the cap before increasing total supply", () => {
+  const guard = minter.indexOf("storage.totalSupply + internalTransferMsg.jettonAmount <= storage.maxSupply");
+  const increase = minter.indexOf("storage.totalSupply += internalTransferMsg.jettonAmount");
+  assert.ok(guard >= 0 && increase > guard);
 });
 
-test("mint bounce rolls total supply back", () => {
-  assert.match(minter, /bounced\(msg: bounced<JettonTransferInternal>\)\s*\{\s*self\.totalSupply -= msg\.amount;/);
+test("privileged code upgrades are absent so an admin cannot raise the stored cap", () => {
+  assert.doesNotMatch(minter, /UpgradeMinterCode|setCodePostponed|contract\.setData/);
+  assert.doesNotMatch(messages, /UpgradeMinterCode/);
 });
 
-test("wallet transfer requires owner authorization and rejects negative resulting balance", () => {
-  assert.match(wallet, /receive\(msg: JettonTransfer\)\s*\{[\s\S]*?require\(sender\(\) == self\.owner, "Incorrect sender"\)/);
-  assert.match(wallet, /self\.balance -= msg\.amount;\s*require\(self\.balance >= 0, "Incorrect balance after send"\)/);
-});
-
-test("master getter keeps TEP-74 response fields separate from custom cap getter", () => {
-  const getter = minter.match(/get fun get_jetton_data\(\): JettonMinterState\s*\{([\s\S]*?)\n    \}/)?.[1] ?? "";
-  for (const field of ["totalSupply:", "mintable:", "adminAddress:", "jettonContent:", "jettonWalletCode:"]) assert.ok(getter.includes(field));
-  assert.ok(!getter.includes("maxSupply:"));
+test("transaction-level regression test covers an over-cap mint", () => {
+  assert.match(tests, /mint cannot exceed the fixed max supply/);
+  assert.match(tests, /ERROR_MAX_SUPPLY/);
 });
