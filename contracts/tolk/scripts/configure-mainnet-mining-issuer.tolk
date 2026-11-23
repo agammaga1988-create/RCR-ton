@@ -28,7 +28,7 @@ fun main() {
     assert (minterAddress.getWorkchain() == 0) throw 1022;
     assert (miningIssuerAddress.getWorkchain() == 0) throw 1022;
 
-    val minter = JettonMinter { address: minterAddress };
+    val minter = JettonMinter.fromAddress(minterAddress);
     assert (minter.getPublicIssuerAddress() == adminWallet.address) throw 1023;
     assert (minter.getMiningIssuerAddress() == null) throw 1024;
 
