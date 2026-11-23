@@ -52,7 +52,7 @@ Before testnet deployment, record and independently verify public addresses for:
 
 Public addresses are not secrets. Never request or store a seed phrase or private key. Signing must happen locally in a wallet or through an audited HSM/KMS signer; no signing key is to be placed in GitHub Actions.
 
-The owner must approve token decimals, initial mint amount, metadata URI, reward formula, complete remaining 600,000,000 RCR allocation, and the governance/renunciation policy before constructor arguments can be finalized.
+The owner must explicitly confirm the proposed 9 token decimals (or approve a different precision and corresponding code/test update), initial mint amount, metadata URI, reward formula, complete remaining 600,000,000 RCR allocation, and governance/renunciation policy before constructor arguments can be finalized.
 
 ## 6. Testnet deployment script
 
