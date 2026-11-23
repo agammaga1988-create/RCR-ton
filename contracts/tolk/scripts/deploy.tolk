@@ -3,7 +3,7 @@ import "@acton/io"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
 import "utils/common"
-import "tokenomics"
+import "../src/tokenomics"
 
 fun main() {
     val deployer = promptJettonWallet("JETTON_DEPLOYER", "Select Jetton Deployer");
