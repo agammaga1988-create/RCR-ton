@@ -24,35 +24,44 @@ type AllowedMessageToMinter =
     | DropMinterAdmin
     | ChangeMinterMetadata
     | SetMiningIssuer
+    | ReturnExcessesBack
     | TopUpTons
 
 fun onBouncedMessage(in: InMessageBounced) {
     in.bouncedBody.skipBouncedPrefix();
-    // process only mint bounces; on other messages, an exception will be thrown, it's okay
     val msg = lazy InternalTransferStep.fromSlice(in.bouncedBody);
-
     var storage = lazy MinterStorage.load();
     var extra = MinterExtra.fromCell(storage.extra);
-    assert (msg.sendExcessesTo != null) throw ERROR_INVALID_MESSAGE;
-    if (msg.sendExcessesTo! == extra.publicIssuerAddress) {
-        extra.publicIssued -= msg.jettonAmount;
-    } else if (extra.miningIssuerAddress != null && msg.sendExcessesTo! == extra.miningIssuerAddress!) {
+    val lookup = extra.pendingMints.get(msg.queryId);
+    assert (lookup.isFound) throw ERROR_CLAIM_NOT_FOUND;
+    val pending = lookup.loadValue();
+    assert (pending.amount == msg.jettonAmount) throw ERROR_INVALID_MESSAGE;
+    assert (
+        in.senderAddress == calcAddressOfJettonWallet(
+            pending.recipient,
+            contract.getAddress(),
+            jettonWalletCompiledCode(),
+        )
+    ) throw ERROR_NOT_VALID_WALLET;
+    if (pending.isMining) {
         extra.miningIssued -= msg.jettonAmount;
     } else {
-        throw ERROR_INVALID_ISSUER;
+        extra.publicIssued -= msg.jettonAmount;
     }
+    extra.pendingMints.delete(msg.queryId);
     storage.extra = extra.toCell();
     storage.totalSupply -= msg.jettonAmount;
     storage.totalMinted -= msg.jettonAmount;
     storage.save();
-
-    val failureMsg = createMessage({
-        bounce: BounceMode.NoBounce,
-        dest: msg.sendExcessesTo!,
-        value: 0,
-        body: MintFailureNotification { queryId: msg.queryId },
-    });
-    failureMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_IGNORE_ERRORS);
+    if (pending.isMining) {
+        val failureMsg = createMessage({
+            bounce: BounceMode.NoBounce,
+            dest: pending.issuerAddress,
+            value: 0,
+            body: MintFailureNotification { queryId: msg.queryId },
+        });
+        failureMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_IGNORE_ERRORS);
+    }
 }
 
 fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
@@ -142,6 +151,8 @@ fun onInternalMessage(in: InMessage) {
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
 
             assert (internalTransferMsg.jettonAmount > 0) throw ERROR_INVALID_MESSAGE;
+            assert (internalTransferMsg.queryId == msg.queryId) throw ERROR_INVALID_MESSAGE;
+            assert (!extra.pendingMints.exists(msg.queryId)) throw ERROR_INVALID_MESSAGE;
             if (in.senderAddress == extra.publicIssuerAddress) {
                 assert (extra.publicIssued + internalTransferMsg.jettonAmount <= rcrPublicIssuanceCapBaseUnits()) throw ERROR_ISSUER_CAP;
                 extra.publicIssued += internalTransferMsg.jettonAmount;
@@ -152,7 +163,13 @@ fun onInternalMessage(in: InMessage) {
                 throw ERROR_NOT_OWNER;
             }
             assert (storage.totalMinted + internalTransferMsg.jettonAmount <= storage.maxSupply) throw ERROR_MAX_SUPPLY;
-            internalTransferMsg.sendExcessesTo = in.senderAddress;
+            internalTransferMsg.sendExcessesTo = contract.getAddress();
+            extra.pendingMints.set(msg.queryId, PendingMintRecord {
+                issuerAddress: in.senderAddress,
+                recipient: msg.mintRecipient,
+                amount: internalTransferMsg.jettonAmount,
+                isMining: extra.miningIssuerAddress != null && in.senderAddress == extra.miningIssuerAddress!,
+            });
             storage.extra = extra.toCell();
             storage.totalSupply += internalTransferMsg.jettonAmount;
             storage.totalMinted += internalTransferMsg.jettonAmount;
@@ -175,6 +192,33 @@ fun onInternalMessage(in: InMessage) {
                 body: internalTransferMsg.toCell(),
             });
             deployMsg.send(SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+        }
+
+        ReturnExcessesBack => {
+            var storage = lazy MinterStorage.load();
+            var extra = MinterExtra.fromCell(storage.extra);
+            val lookup = extra.pendingMints.get(msg.queryId);
+            assert (lookup.isFound) throw ERROR_CLAIM_NOT_FOUND;
+            val pending = lookup.loadValue();
+            assert (
+                in.senderAddress == calcAddressOfJettonWallet(
+                    pending.recipient,
+                    contract.getAddress(),
+                    jettonWalletCompiledCode(),
+                )
+            ) throw ERROR_NOT_VALID_WALLET;
+            extra.pendingMints.delete(msg.queryId);
+            storage.extra = extra.toCell();
+            storage.save();
+            if (pending.isMining) {
+                val successMsg = createMessage({
+                    bounce: BounceMode.NoBounce,
+                    dest: pending.issuerAddress,
+                    value: 0,
+                    body: MintSuccessNotification { queryId: msg.queryId },
+                });
+                successMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_IGNORE_ERRORS);
+            }
         }
 
         SetMiningIssuer => {
