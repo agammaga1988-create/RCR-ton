@@ -21,14 +21,17 @@
 
 ## Phase 2 — Reward accounting and contracts
 - [ ] Deterministic reward schedule with integer-only arithmetic and formula versioning.
-- [ ] Atomic 400,000,000 RCR rewards allocation accounting.
+- [x] Atomic 400,000,000 RCR mining allocation reservation/paid accounting in MiningIssuer.
 - [x] TEP-74/TEP-89 Jetton v2.1 on Tolk/Acton with RCR lifetime max-supply enforcement, burns not restoring mint capacity, and privileged code upgrades disabled.
 - [x] Enforce separate 600,000,000 public-issuer and 400,000,000 mining-issuer lifetime caps in the minter; mining issuer is configured once by admin.
-- [ ] Separate 400,000,000 RCR reward vault with replay-safe claims and tested bounce/retry semantics.
-- [x] Guarded Testnet deployment script: zero genesis supply, explicit decimals (0–18), integer-derived 1,000,000,000 RCR cap; CI checks the script.
-- [x] Acton transaction-level Jetton suite (77 tests), RCR over-cap mint regression, and decimals/base-unit cap tests; [ ] additional property/fuzz tests for the reward vault.
+- [x] Separate 400,000,000 RCR MiningIssuer with unique claim IDs, verified master callbacks, retryable bounce handling, and pause-by-default.
+- [ ] Approve deterministic reward formula, eligibility/anti-abuse policy, and backend claim calculation; the on-chain issuer deliberately accepts only operator-authorized amounts.
+- [x] Testnet deployment script deploys Jetton + MiningIssuer, zero genesis supply, fixed 9 decimals, split lifetime caps, and one-time mining issuer authorization.
+- [x] Acton transaction-level suite (85 tests), RCR lifetime/public/mining cap regressions, replay protection, settlement callbacks, and safe claim retries.
+- [ ] Additional property/fuzz tests and independent review of reward formula/backend eligibility.
 - [ ] Testnet deployment, indexer reconciliation, and replay-protected claim flow.
-- [ ] Treasury controls, multisig, pause roles, and event monitoring.
+- [x] Mining issuer pause/resume role and operator separation.
+- [ ] Production treasury multisig, key rotation policy, and event monitoring.
 
 ## Phase 3 — Launch readiness
 - [ ] Independent smart-contract and application security review.
