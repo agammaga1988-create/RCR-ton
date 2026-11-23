@@ -25,7 +25,7 @@ This is an engineering scaffold, not a deployed token or audited financial produ
 
 ## Development
 
-Requirements: Node.js 22+, pnpm 9+, Docker (for local PostgreSQL CI-style tests), and [Acton 1.2.1](https://ton-blockchain.github.io/acton/docs/installation) for Tolk contracts.
+Requirements: Node.js 22+, pnpm 9+, Docker (optional, for local PostgreSQL integration tests), and [Acton 1.2.1](https://ton-blockchain.github.io/acton/docs/installation) for Tolk contracts.
 
 ```bash
 pnpm install
