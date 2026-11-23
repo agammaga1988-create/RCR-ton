@@ -35,7 +35,7 @@ test("rejects modified signed user data", () => {
 });
 
 test("rejects expired data", () => {
-  const initData = signedInitData({ auth_date: String(now - 86_401), user: JSON.stringify({ id: 7 }) });
+  const initData = signedInitData({ auth_date: String(now - 901), user: JSON.stringify({ id: 7 }) });
   assert.throws(() => verifyTelegramInitData(initData, token, { nowSeconds: now }), /expired/);
 });
 
