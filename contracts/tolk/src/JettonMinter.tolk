@@ -151,6 +151,7 @@ fun onInternalMessage(in: InMessage) {
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
 
             assert (internalTransferMsg.jettonAmount > 0) throw ERROR_INVALID_MESSAGE;
+            assert (internalTransferMsg.transferInitiator == null) throw ERROR_INVALID_MESSAGE;
             assert (internalTransferMsg.queryId == msg.queryId) throw ERROR_INVALID_MESSAGE;
             assert (!extra.pendingMints.exists(msg.queryId)) throw ERROR_INVALID_MESSAGE;
             if (in.senderAddress == extra.publicIssuerAddress) {
