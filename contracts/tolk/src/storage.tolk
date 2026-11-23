@@ -6,6 +6,7 @@ struct WalletStorage {
 
 struct MinterStorage {
     totalSupply: coins
+    totalMinted: coins
     maxSupply: coins
     adminAddress: address?
     nextAdminAddress: address?
