@@ -3,7 +3,7 @@
 
 import "./messages";
 import "./constants";
-import "../utils";
+import "./utils";
 
 contract JettonWallet(
     owner: Address,
