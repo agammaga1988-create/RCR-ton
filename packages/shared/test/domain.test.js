@@ -23,3 +23,15 @@ test("session cannot complete early", () => {
   assert.throws(() => completeSession(session, session.endsAt - 1, 10n), /not completed/);
   assert.equal(completeSession(session, session.endsAt, 10n).status, "completed");
 });
+
+test("reward arithmetic rejects unsafe input types and negative values", () => {
+  assert.throws(() => calculateSessionReward({ baseReward: 1, remainingAllocation: 10n }), /bigint/);
+  assert.throws(() => calculateSessionReward({ baseReward: -1n, remainingAllocation: 10n }), /non-negative/);
+  assert.throws(() => calculateSessionReward({ baseReward: 1n, multiplierBps: 100001n, remainingAllocation: 10n }), /safety ceiling/);
+});
+
+test("reward arithmetic uses integer truncation and never exceeds zero or remaining budget", () => {
+  assert.equal(calculateSessionReward({ baseReward: 1n, multiplierBps: 9999n, remainingAllocation: 10n }), 0n);
+  assert.equal(calculateSessionReward({ baseReward: 100n, remainingAllocation: 0n }), 0n);
+  assert.equal(calculateSessionReward({ baseReward: 999999999999999999999999n, remainingAllocation: 400000000n }), 400000000n);
+});
