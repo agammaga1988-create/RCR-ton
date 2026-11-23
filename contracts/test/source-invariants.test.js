@@ -37,3 +37,11 @@ test("burns do not reduce cumulative minted supply", () => {
   assert.doesNotMatch(burnBranch, /totalMinted/);
   assert.match(tests, /burning does not replenish lifetime mint cap/);
 });
+
+test("public and mining issuers have separate immutable lifetime caps", () => {
+  assert.match(minter, /rcrPublicIssuanceCapBaseUnits\(\)/);
+  assert.match(minter, /rcrMiningIssuerCapBaseUnits\(\)/);
+  assert.match(minter, /SetMiningIssuer/);
+  assert.match(tests, /public issuer cannot exceed 600 million RCR/);
+  assert.match(tests, /configured mining issuer is capped at 400 million RCR/);
+});
