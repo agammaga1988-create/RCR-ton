@@ -49,7 +49,7 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal(page.status, 200);
     const pageText = await page.text();
     assert.ok(pageText.includes('<script src="/app.js" defer></script>'));
-    assert.ok(pageText.includes("@tonconnect/ui@5.0.3"));
+    assert.ok(pageText.includes("@tonconnect/ui@3.0.2"));
     assert.match(pageText, /24-hour earning sessions/);
     assert.equal((await fetch(base + "/tonconnect-manifest.json")).status, 503);
     const icon = await fetch(base + "/rcr-icon.png");
