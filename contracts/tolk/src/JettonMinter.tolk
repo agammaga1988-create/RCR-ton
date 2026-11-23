@@ -136,10 +136,10 @@ fun onInternalMessage(in: InMessage) {
             assert (internalTransferMsg.jettonAmount > 0) throw ERROR_INVALID_MESSAGE;
             if (in.senderAddress == extra.publicIssuerAddress) {
                 assert (extra.publicIssued + internalTransferMsg.jettonAmount <= rcrPublicIssuanceCapBaseUnits()) throw ERROR_ISSUER_CAP;
-                storage.publicIssued += internalTransferMsg.jettonAmount;
-            } else if (extra.miningIssuerAddress != null && in.senderAddress == storage.miningIssuerAddress!) {
+                extra.publicIssued += internalTransferMsg.jettonAmount;
+            } else if (extra.miningIssuerAddress != null && in.senderAddress == extra.miningIssuerAddress!) {
                 assert (extra.miningIssued + internalTransferMsg.jettonAmount <= rcrMiningIssuerCapBaseUnits()) throw ERROR_ISSUER_CAP;
-                storage.miningIssued += internalTransferMsg.jettonAmount;
+                extra.miningIssued += internalTransferMsg.jettonAmount;
             } else {
                 throw ERROR_NOT_OWNER;
             }
@@ -175,7 +175,7 @@ fun onInternalMessage(in: InMessage) {
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             assert (extra.miningIssuerAddress == null) throw ERROR_ISSUER_ALREADY_SET;
             assert (msg.miningIssuerAddress != extra.publicIssuerAddress) throw ERROR_INVALID_ISSUER;
-            storage.miningIssuerAddress = msg.miningIssuerAddress;
+            extra.miningIssuerAddress = msg.miningIssuerAddress;
             storage.extra = extra.toCell();
             storage.save();
         }
