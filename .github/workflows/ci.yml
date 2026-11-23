@@ -39,6 +39,7 @@ jobs:
           node-version: 22
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm --filter @rcr/api migrate
+      - run: pnpm --filter @rcr/api migrate
       - uses: ton-blockchain/setup-acton@0f9f436843d740466cae2d7411ff59072dde942e
         with:
           version: 1.2.1
