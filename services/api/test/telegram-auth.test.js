@@ -9,7 +9,7 @@ const now = 1_800_000_000;
 function signedInitData(fields) {
   const params = new URLSearchParams(fields);
   const checkString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
   const secret = createHmac("sha256", "WebAppData").update(token).digest();
@@ -28,9 +28,10 @@ test("accepts valid Telegram initData and returns verified identity", () => {
   assert.equal(result.user.username, "rcr_test");
 });
 
-test("rejects modified data", () => {
-  const initData = signedInitData({ auth_date: String(now), user: JSON.stringify({ id: 7 }) });
-  assert.throws(() => verifyTelegramInitData(initData.replace("id%22%3A7", "id%22%3A8"), token, { nowSeconds: now }), /signature/);
+test("rejects modified signed user data", () => {
+  const params = new URLSearchParams(signedInitData({ auth_date: String(now), user: JSON.stringify({ id: 7 }) }));
+  params.set("user", JSON.stringify({ id: 8 }));
+  assert.throws(() => verifyTelegramInitData(params.toString(), token, { nowSeconds: now }), /signature/);
 });
 
 test("rejects expired data", () => {
@@ -51,5 +52,14 @@ test("rejects a future auth_date beyond allowed clock skew", () => {
 test("rejects missing token and malformed signatures", () => {
   const initData = signedInitData({ auth_date: String(now), user: JSON.stringify({ id: 7 }) });
   assert.throws(() => verifyTelegramInitData(initData, "", { nowSeconds: now }), /not_configured/);
-  assert.throws(() => verifyTelegramInitData(initData.replace(/hash=[^&]+/, "hash=bad"), token, { nowSeconds: now }), /signature/);
+  const malformed = new URLSearchParams(initData);
+  malformed.set("hash", "bad");
+  assert.throws(() => verifyTelegramInitData(malformed.toString(), token, { nowSeconds: now }), /signature/);
+});
+
+test("rejects non-object and unsafe Telegram identities", () => {
+  for (const user of ["null", "[]", JSON.stringify({ id: 0 }), JSON.stringify({ id: Number.MAX_SAFE_INTEGER + 1 })]) {
+    const initData = signedInitData({ auth_date: String(now), user });
+    assert.throws(() => verifyTelegramInitData(initData, token, { nowSeconds: now }), /invalid_telegram_user/);
+  }
 });
