@@ -4,18 +4,27 @@ import { spawn } from "node:child_process";
 import { createHmac } from "node:crypto";
 
 async function startApi(extraEnv = {}) {
-  const port = 3400 + Math.floor(Math.random() * 400);
   const child = spawn(process.execPath, ["src/server.js"], {
     cwd: new URL("..", import.meta.url),
-    env: { ...process.env, PORT: String(port), HOST: "127.0.0.1", NODE_ENV: "test", DATABASE_URL: "", TELEGRAM_BOT_TOKEN: "", ...extraEnv },
-    stdio: "ignore"
+    env: { ...process.env, PORT: "0", HOST: "127.0.0.1", NODE_ENV: "test", DATABASE_URL: "", TELEGRAM_BOT_TOKEN: "", RCR_TEST_SERVER_PORT: "1", ...extraEnv },
+    stdio: ["ignore", "pipe", "ignore"]
   });
-  for (let i = 0; i < 40; i++) {
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/health`);
-      if (response.ok) return { child, port };
-    } catch {}
-    await new Promise(resolve => setTimeout(resolve, 100));
+  let port = null;
+  child.stdout.setEncoding("utf8");
+  child.stdout.on("data", chunk => {
+    const prefix = "RCR API listening on http://127.0.0.1:";
+    const index = chunk.indexOf(prefix);
+    if (index >= 0) port = Number(chunk.slice(index + prefix.length).trim().split(/\s/)[0]);
+  });
+  for (let i = 0; i < 80; i++) {
+    if (port !== null) {
+      try {
+        const response = await fetch("http://127.0.0.1:" + port + "/health");
+        if (response.ok) return { child, port };
+      } catch {}
+    }
+    if (child.exitCode !== null) break;
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   child.kill("SIGTERM");
   throw new Error("API did not start");
