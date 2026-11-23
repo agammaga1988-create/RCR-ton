@@ -53,6 +53,7 @@ get fun `test minter restores supply on internal_transfer bounce`() {
 
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
     expect(minter.getCumulativeMinted()).toEqual(0);
+    expect(minter.getPublicIssued()).toEqual(0);
 }
 
 get fun `test wallet restores balance on internal_transfer bounce`() {
