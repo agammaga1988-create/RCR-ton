@@ -87,12 +87,6 @@ struct (0x7431f221) DropMinterAdmin {
     queryId: uint64
 }
 
-struct (0x2508d66a) UpgradeMinterCode {
-    queryId: uint64
-    newData: cell
-    newCode: cell
-}
-
 struct (0xcb862902) ChangeMinterMetadata {
     queryId: uint64
     newMetadata: cell
