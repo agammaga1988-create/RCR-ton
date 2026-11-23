@@ -5,6 +5,7 @@ import "fees-management"
 import "jetton-utils"
 import "messages"
 import "storage"
+import "sharding"
 import "tokenomics"
 
 const CLAIM_STATUS_PENDING = 1
