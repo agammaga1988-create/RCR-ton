@@ -1,8 +1,6 @@
-import "@gen/JettonWallet.code"
 import "@stdlib/gas-payments"
 import "errors"
 import "fees-management"
-import "jetton-utils"
 import "messages"
 import "storage"
 import "sharding"
@@ -25,7 +23,7 @@ contract MiningIssuer {
 type AllowedMessageToMiningIssuer =
     | RegisterMiningClaim
     | RetryMiningClaim
-    | ReturnExcessesBack
+    | MintSuccessNotification
     | MintFailureNotification
     | ChangeMiningOperator
     | PauseMining
@@ -134,19 +132,14 @@ fun onInternalMessage(in: InMessage) {
             sendMiningMint(storage.minterAddress, msg.claimId, claim.recipient, claim.amount, msg.tonAmount);
         }
 
-        ReturnExcessesBack => {
+        MintSuccessNotification => {
             var storage = lazy MiningIssuerStorage.load();
             var extra = MiningIssuerExtra.fromCell(storage.extra);
+            assert (in.senderAddress == storage.minterAddress) throw ERROR_NOT_OWNER;
             val lookup = extra.claims.get(msg.queryId);
             assert (lookup.isFound) throw ERROR_CLAIM_NOT_FOUND;
             var claim = lookup.loadValue();
             assert (claim.status == CLAIM_STATUS_PENDING) throw ERROR_CLAIM_STATE;
-            val walletCode = jettonWalletCompiledCode();
-            assert (
-                in.senderAddress ==
-                calcAddressOfJettonWallet(claim.recipient, storage.minterAddress, walletCode)
-            ) throw ERROR_NOT_VALID_WALLET;
-
             claim.status = CLAIM_STATUS_PAID;
             extra.totalPending -= claim.amount;
             extra.totalIssued += claim.amount;
