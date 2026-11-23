@@ -1,9 +1,10 @@
 import "errors"
 
 const RCR_MAX_SUPPLY_WHOLE_TOKENS = 1000000000
+const RCR_DECIMALS = 9
 
 fun rcrMaxSupplyBaseUnits(decimals: int): coins {
-    assert (decimals >= 0 && decimals <= 18) throw ERROR_INVALID_DECIMALS;
+    assert (decimals == RCR_DECIMALS) throw ERROR_INVALID_DECIMALS;
     var scale = 1;
     var i = 0;
     while (i < decimals) {
