@@ -38,8 +38,9 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal((await health.json()).ok, true);
     assert.equal(health.headers.get("x-content-type-options"), "nosniff");
     const config = await fetch(base + "/config.js");
-    assert.match(await config.text(), /apiBase: ""/);
-    assert.match(await config.text(), /tonConnectManifestUrl: ""/);
+    const configText = await config.text();
+    assert.match(configText, /apiBase: ""/);
+    assert.match(configText, /tonConnectManifestUrl: ""/);
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
     const appScript = await fetch(base + "/app.js");
     assert.equal(appScript.status, 200);
