@@ -32,14 +32,16 @@ fun onBouncedMessage(in: InMessageBounced) {
     val msg = lazy InternalTransferStep.fromSlice(in.bouncedBody);
 
     var storage = lazy MinterStorage.load();
+    var extra = MinterExtra.fromCell(storage.extra);
     assert (msg.sendExcessesTo != null) throw ERROR_INVALID_MESSAGE;
-    if (msg.sendExcessesTo! == storage.publicIssuerAddress) {
-        storage.publicIssued -= msg.jettonAmount;
-    } else if (storage.miningIssuerAddress != null && msg.sendExcessesTo! == storage.miningIssuerAddress!) {
-        storage.miningIssued -= msg.jettonAmount;
+    if (msg.sendExcessesTo! == extra.publicIssuerAddress) {
+        extra.publicIssued -= msg.jettonAmount;
+    } else if (extra.miningIssuerAddress != null && msg.sendExcessesTo! == extra.miningIssuerAddress!) {
+        extra.miningIssued -= msg.jettonAmount;
     } else {
         throw ERROR_INVALID_ISSUER;
     }
+    storage.extra = extra.toCell();
     storage.totalSupply -= msg.jettonAmount;
     storage.totalMinted -= msg.jettonAmount;
     storage.save();
@@ -119,6 +121,7 @@ fun onInternalMessage(in: InMessage) {
 
         MintNewJettons => {
             var storage = lazy MinterStorage.load();
+            var extra = MinterExtra.fromCell(storage.extra);
             assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
 
             var internalTransferMsg = msg
@@ -131,17 +134,18 @@ fun onInternalMessage(in: InMessage) {
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
 
             assert (internalTransferMsg.jettonAmount > 0) throw ERROR_INVALID_MESSAGE;
-            if (in.senderAddress == storage.publicIssuerAddress) {
-                assert (storage.publicIssued + internalTransferMsg.jettonAmount <= rcrPublicIssuanceCapBaseUnits()) throw ERROR_ISSUER_CAP;
+            if (in.senderAddress == extra.publicIssuerAddress) {
+                assert (extra.publicIssued + internalTransferMsg.jettonAmount <= rcrPublicIssuanceCapBaseUnits()) throw ERROR_ISSUER_CAP;
                 storage.publicIssued += internalTransferMsg.jettonAmount;
-            } else if (storage.miningIssuerAddress != null && in.senderAddress == storage.miningIssuerAddress!) {
-                assert (storage.miningIssued + internalTransferMsg.jettonAmount <= rcrMiningIssuerCapBaseUnits()) throw ERROR_ISSUER_CAP;
+            } else if (extra.miningIssuerAddress != null && in.senderAddress == storage.miningIssuerAddress!) {
+                assert (extra.miningIssued + internalTransferMsg.jettonAmount <= rcrMiningIssuerCapBaseUnits()) throw ERROR_ISSUER_CAP;
                 storage.miningIssued += internalTransferMsg.jettonAmount;
             } else {
                 throw ERROR_NOT_OWNER;
             }
             assert (storage.totalMinted + internalTransferMsg.jettonAmount <= storage.maxSupply) throw ERROR_MAX_SUPPLY;
             internalTransferMsg.sendExcessesTo = in.senderAddress;
+            storage.extra = extra.toCell();
             storage.totalSupply += internalTransferMsg.jettonAmount;
             storage.totalMinted += internalTransferMsg.jettonAmount;
             storage.save();
@@ -167,10 +171,12 @@ fun onInternalMessage(in: InMessage) {
 
         SetMiningIssuer => {
             var storage = lazy MinterStorage.load();
+            var extra = MinterExtra.fromCell(storage.extra);
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            assert (storage.miningIssuerAddress == null) throw ERROR_ISSUER_ALREADY_SET;
-            assert (msg.miningIssuerAddress != storage.publicIssuerAddress) throw ERROR_INVALID_ISSUER;
+            assert (extra.miningIssuerAddress == null) throw ERROR_ISSUER_ALREADY_SET;
+            assert (msg.miningIssuerAddress != extra.publicIssuerAddress) throw ERROR_INVALID_ISSUER;
             storage.miningIssuerAddress = msg.miningIssuerAddress;
+            storage.extra = extra.toCell();
             storage.save();
         }
 
@@ -242,22 +248,26 @@ get fun get_cumulative_minted(): coins {
 
 get fun get_public_issuer_address(): address {
     val storage = lazy MinterStorage.load();
-    return storage.publicIssuerAddress;
+    val extra = MinterExtra.fromCell(storage.extra);
+    return extra.publicIssuerAddress;
 }
 
 get fun get_mining_issuer_address(): address? {
     val storage = lazy MinterStorage.load();
-    return storage.miningIssuerAddress;
+    val extra = MinterExtra.fromCell(storage.extra);
+    return extra.miningIssuerAddress;
 }
 
 get fun get_public_issued(): coins {
     val storage = lazy MinterStorage.load();
-    return storage.publicIssued;
+    val extra = MinterExtra.fromCell(storage.extra);
+    return extra.publicIssued;
 }
 
 get fun get_mining_issued(): coins {
     val storage = lazy MinterStorage.load();
-    return storage.miningIssued;
+    val extra = MinterExtra.fromCell(storage.extra);
+    return extra.miningIssued;
 }
 
 get fun get_max_supply(): coins {
