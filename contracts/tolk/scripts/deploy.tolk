@@ -2,7 +2,6 @@ import "@acton/emulation/scripts"
 import "@acton/io"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
-import "sharding"
 import "utils/common"
 
 fun main() {
@@ -14,7 +13,7 @@ fun main() {
         adminWallet.address,
     );
 
-    assert (adminWallet.address.getWorkchain() == MY_WORKCHAIN) throw 1006;
+    assert (adminWallet.address.getWorkchain() == 0) throw 1006;
     assert (operatorAddress.getWorkchain() == MY_WORKCHAIN) throw 1006;
 
     val minterStorage = promptJettonMinterStorage(adminWallet.address);
