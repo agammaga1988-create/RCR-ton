@@ -16,6 +16,10 @@ The build uses the pinned `@tact-lang/compiler@1.6.13` and Node.js 22. CI compil
 
 The master contract now requires a `maxSupply` constructor argument, rejects initial supply above it, and rejects mint operations that would exceed it. Deployment must set this value to the agreed base-unit representation of 1,000,000,000 RCR after token decimals are formally approved. Do not guess decimals or deploy with a guessed value.
 
+## Compiler lifecycle warning
+
+The current Tact compiler package emits a deprecation warning and directs new TON development toward Tolk. This Tact implementation is an interim compatibility/build milestone only. Before production or mainnet, migrate or formally re-implement the Jetton in the currently recommended TON language, then rerun the complete test matrix and security review. A successful compile is not an audit.
+
 ## Scope and release status
 
 This directory currently implements the TEP-74 Jetton master/wallet reference base with the RCR max-supply guard. It does **not** yet implement the separate 400,000,000 RCR reward vault, backend-signed claim registration, replay-safe claims, token metadata hosting, or deployment scripts. It is not audited and is not approved for mainnet.
