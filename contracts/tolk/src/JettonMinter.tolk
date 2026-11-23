@@ -175,6 +175,7 @@ fun onInternalMessage(in: InMessage) {
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             assert (extra.miningIssuerAddress == null) throw ERROR_ISSUER_ALREADY_SET;
             assert (msg.miningIssuerAddress != extra.publicIssuerAddress) throw ERROR_INVALID_ISSUER;
+            assert (msg.miningIssuerAddress.getWorkchain() == MY_WORKCHAIN) throw ERROR_INVALID_ISSUER;
             extra.miningIssuerAddress = msg.miningIssuerAddress;
             storage.extra = extra.toCell();
             storage.save();
@@ -220,11 +221,12 @@ fun onInternalMessage(in: InMessage) {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
+    val extra = MinterExtra.fromCell(storage.extra);
     val jettonWalletCode = jettonWalletCompiledCode();
 
     return {
         totalSupply: storage.totalSupply,
-        mintable: true,
+        mintable: extra.publicIssued < rcrPublicIssuanceCapBaseUnits() || (extra.miningIssuerAddress != null && extra.miningIssued < rcrMiningIssuerCapBaseUnits()),
         adminAddress: storage.adminAddress,
         jettonContent: storage.metadata as Cell<OnchainMetadataReply>,
         jettonWalletCode,
