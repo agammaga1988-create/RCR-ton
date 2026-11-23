@@ -32,7 +32,9 @@
       timer.textContent = formatRemaining(remaining);
       if (remaining === 0) {
         state.textContent = "SESSION COMPLETED";
-        copy.textContent = "Your session period has ended. Claiming is not enabled yet.";
+        copy.textContent = "Your session period has ended. Claiming is not enabled yet. You can start another session.";
+        button.disabled = false;
+        button.textContent = "Start next 24-hour session";
         clearInterval(ticker);
       }
     };
