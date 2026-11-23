@@ -1,48 +1,43 @@
-# RCR Railway deployment plan
+# RCR Railway deployment
 
-This is a hosting runbook, not a claim that services have been deployed. Connect the Railway workspace before provisioning resources.
+## Provisioned testnet infrastructure
 
-## Services
+The Railway workspace is connected. The following resources were provisioned in the `testnet` environment:
 
-Create one Railway project with:
-1. PostgreSQL service.
-2. API service from this repository.
-3. Mini App service from this repository.
+- Project: `RCR GRAM`
+- PostgreSQL service: `Postgres` (persistent 500 MB volume)
+- API service: `rcr-app` — https://rcr-app-testnet.up.railway.app
+- Telegram Mini App service: `rcr-miniapp` — https://rcr-miniapp-testnet.up.railway.app
 
-Use the repository root for both Node services so pnpm workspace dependencies resolve. Use Node.js 22 and pnpm 9.15.4.
+The API and Mini App are configured from the repository root so pnpm workspace dependencies resolve. Both services use the repository's `main` branch. PostgreSQL migrations 001 and 008–011 were applied by the API pre-deploy migration command. Railway healthchecks reported both app services online after deployment.
 
-### API service
+## API service
 
 - Build/install command: `corepack enable && pnpm install --frozen-lockfile`
-- Pre-deploy/release command: `pnpm --filter @rcr/api migrate`
+- Pre-deploy command: `pnpm --filter @rcr/api migrate`
 - Start command: `pnpm --filter @rcr/api start`
-- Set `HOST=0.0.0.0`, `NODE_ENV=production`.
-- Set `DATABASE_URL` from the Railway PostgreSQL service's private connection URL.
-- Set `TELEGRAM_BOT_TOKEN` using Railway's encrypted variable interface only.
-- Set `RCR_PUBLIC_URL` to the Mini App's exact public HTTPS origin (no trailing path).
-- Expose the service on HTTPS and verify `/health`.
+- Healthcheck: `/health`
+- Runtime variables: `HOST=0.0.0.0`, `NODE_ENV=production`, private PostgreSQL `DATABASE_URL`, and `RCR_PUBLIC_URL=https://rcr-miniapp-testnet.up.railway.app`.
+- Public origin: `https://rcr-app-testnet.up.railway.app`
 
-### Mini App service
+## Mini App service
 
 - Build/install command: `corepack enable && pnpm install --frozen-lockfile`
 - Start command: `pnpm --filter @rcr/miniapp start`
-- Set `HOST=0.0.0.0`.
-- Set `RCR_PUBLIC_URL` to this service's exact public HTTPS origin.
-- Set `RCR_API_BASE` to the API service's public HTTPS origin.
-- Verify `/`, `/config.js`, `/tonconnect-manifest.json`, and `/rcr-icon.png` over HTTPS.
+- Healthcheck: `/health`
+- Runtime variables:
+  - `HOST=0.0.0.0`
+  - `RCR_PUBLIC_URL=https://rcr-miniapp-testnet.up.railway.app`
+  - `RCR_API_BASE=https://rcr-app-testnet.up.railway.app`
+- Public origin: `https://rcr-miniapp-testnet.up.railway.app`
+- The Mini App server derives `/tonconnect-manifest.json` and `/rcr-icon.png` from the configured HTTPS origin.
 
-After both services have stable HTTPS domains, update the API's `RCR_PUBLIC_URL` to exactly match the Mini App origin. The manifest must reference the final Mini App origin and its icon.
+## Telegram bot connection — pending owner credential
 
-## Telegram
+The API service does not currently have `TELEGRAM_BOT_TOKEN`. Add it only through Railway's encrypted variable interface after creating/selecting the bot in BotFather. Never commit or paste the token into source code, issues, logs, or this document. Once configured, verify Telegram init-data validation and session creation.
 
-After the Mini App and API are live:
-1. Create or select the Telegram bot in BotFather.
-2. Configure the Mini App URL and menu button to the Mini App HTTPS origin.
-3. Store the bot token only as the API service's encrypted `TELEGRAM_BOT_TOKEN` variable.
-4. Open the Mini App inside Telegram and verify signed init data, session creation, and restoration.
+## On-chain release boundary
 
-No bot token is stored in this repository. Do not paste it into chat, issues, build logs, or client-side variables.
+Hosting the API and Mini App does not deploy the RCR Jetton or MiningIssuer contracts. The current token contract deployment scripts are Mainnet-specific and require the owner deployment wallet to sign locally through Acton. They enforce zero genesis supply, 9 decimals, a 1,000,000,000 RCR maximum supply, and a paused MiningIssuer. The public wallet addresses in the deployment scripts are configuration only; they do not grant signing capability.
 
-## Release boundary
-
-The currently implemented API supports authenticated 24-hour sessions only. Reward calculation, claim registration, payouts, and withdrawals remain disabled. TON Connect in the Mini App is testnet-only. Hosting the app does not deploy the token contracts or enable token transfers/rewards.
+Do not activate rewards, claims, payouts, withdrawals, or trading based only on successful hosting. Those flows remain disabled until the contract deployment, wallet authorization, audited reward configuration, and release checks are complete. No seed phrase or private key is needed by the hosted application.
