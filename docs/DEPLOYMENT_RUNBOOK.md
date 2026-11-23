@@ -93,6 +93,32 @@ acton script scripts/deploy.tolk
 
 Only after the local simulation is reviewed should the named command `acton run deploy-rcr-testnet` be used. That command is pinned to `--net testnet`; do not replace it with a mainnet command.
 
+
+## 7A. Guarded owner-specific Mainnet command
+
+A separate Mainnet script is checked in at `contracts/tolk/scripts/deploy-mainnet.tolk`. It is intentionally not run by CI. It:
+- refuses to proceed unless `RCR_MAINNET_DEPLOY_CONFIRMATION=DEPLOY RCR MAINNET`;
+- requires the locally selected deployment signer to resolve to the owner's supplied deployment address;
+- requires the locally selected admin signer to resolve to the separately supplied admin address;
+- requires a non-empty `JETTON_IMAGE` value before deployment;
+- fixes the network to Mainnet through the named Acton command;
+- fixes 9 decimals and zero genesis supply, enforces the 1B maximum supply and the 600M/400M issuer caps, and verifies the MiningIssuer is paused after deployment.
+
+The intended local invocation (only after all release gates below are met) is:
+
+```sh
+cd contracts/tolk
+export RCR_MAINNET_DEPLOY_CONFIRMATION="DEPLOY RCR MAINNET"
+export JETTON_DEPLOYER="<locally configured Acton wallet name for the owner-provided deployment address>"
+export JETTON_ADMIN_WALLET="<locally configured Acton wallet name for the owner-provided admin address>"
+export JETTON_IMAGE="https://<owner-controlled-host>/rcr-icon.png"
+acton script scripts/deploy-mainnet.tolk --net mainnet
+```
+
+Acton wallet names must refer to local owner-controlled signers whose derived addresses match the two hard-coded public addresses. A public address is not a signer. The deployer wallet must hold sufficient TON for both deployments and configuration; the admin wallet must be able to authorize MiningIssuer configuration. Never export or paste mnemonic/private keys into the shell history, GitHub, CI, or chat. Use the wallet's supported local signer mechanism.
+
+This command creates contracts with zero genesis supply; it does not configure fees, marketing allocations, vesting, rewards formula, withdrawals, or launch liquidity. The MiningIssuer remains paused. The script has not been executed and no Mainnet transaction has been submitted.
+
 ## 8. Testnet acceptance
 
 A testnet release requires:
