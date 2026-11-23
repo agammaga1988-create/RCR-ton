@@ -15,7 +15,7 @@
 - [x] Session-start UI and server-authoritative countdown.
 - [x] Static server security headers, Telegram frame policy, and same-origin API design.
 - [x] API and Mini App regression tests in CI.
-- [ ] Persist and retrieve current session after app reload.
+- [x] Persist and retrieve current session after app reload.
 - [ ] Add TON Connect UI and verified testnet manifest.
 - [ ] Distributed rate limiting for multi-instance production deployments.
 
