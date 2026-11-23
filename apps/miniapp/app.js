@@ -24,7 +24,7 @@
   function showSession(session) {
     activeSession = session;
     state.textContent = "SESSION ACTIVE";
-    copy.textContent = "Session started. Rewards are calculated and distributed only after the protocol launch gates are complete.";
+    copy.textContent = "Session is recorded. No reward amount is calculated or payable yet; claims remain disabled.";
     button.textContent = "Session active";
     button.disabled = true;
     const tick = () => {
