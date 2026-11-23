@@ -80,6 +80,27 @@ test("reward accounting migration installs a disabled policy and rejects invalid
     pool.query("UPDATE reward_program_config SET enabled = TRUE WHERE singleton = TRUE"),
     error => error.code === "23514"
   );
+  await pool.query(
+    `UPDATE reward_program_config
+     SET formula_version = 1, decimals = 9, reward_rate_units = 1,
+         mining_cap_units = 400000000000000000,
+         approved_by = 'automated-test', approved_at = now()
+     WHERE singleton = TRUE`
+  );
+  await pool.query("UPDATE reward_program_config SET enabled = TRUE WHERE singleton = TRUE");
+  await pool.query("UPDATE reward_program_config SET enabled = FALSE WHERE singleton = TRUE");
+  const pausedPolicy = await pool.query(
+    "SELECT enabled, approved_by, approved_at FROM reward_program_config WHERE singleton = TRUE"
+  );
+  assert.equal(pausedPolicy.rows[0].enabled, false);
+  assert.equal(pausedPolicy.rows[0].approved_by, "automated-test");
+  assert.ok(pausedPolicy.rows[0].approved_at);
+  await assert.rejects(
+    pool.query(
+      "UPDATE reward_program_config SET enabled = TRUE, mining_cap_units = 400000000000000001 WHERE singleton = TRUE"
+    ),
+    error => error.code === "23514"
+  );
 
   const telegramUserId = testUserId();
   const session = await createEarningSession(telegramUserId);
