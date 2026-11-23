@@ -1,0 +1,17 @@
+{
+  "projects": [
+    {
+      "name": "RCRJetton",
+      "path": "./contracts/src/jetton-minter.tact",
+      "output": "./contracts/build",
+      "mode": "full",
+      "options": {
+        "external": false,
+        "debug": false,
+        "ipfsAbiGetter": false,
+        "interfacesGetter": false,
+        "experimental": { "inline": true }
+      }
+    }
+  ]
+}
