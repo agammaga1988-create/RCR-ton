@@ -4,7 +4,9 @@ Status: design specification only. This document is not deployable code and does
 
 ## 1. Standards and architecture
 
-RCR will be a TON Jetton using the TEP-74 master + per-owner Jetton-wallet architecture and TEP-64 metadata. The wallet implementation must be derived from a currently maintained Tact standard implementation and reviewed against the current TEPs. Do not copy a historical sample without checking compiler compatibility and all message handlers.
+Implementation target: Tolk + Acton 1.2.1, based on TON's reference-grade Jetton v2.1 implementation. The RCR minter stores a maximum-supply field, rejects minting beyond it, and omits privileged code/data upgrades so an administrator cannot raise the configured cap through an upgrade message.
+
+RCR will be a TON Jetton using the TEP-74 master + per-owner Jetton-wallet architecture and TEP-64 metadata. The primary implementation now uses the current Tolk/Acton Jetton v2.1 reference package, with RCR-specific max-supply enforcement. The earlier Tact port is retained only as a non-deployable legacy reference.
 
 References:
 - TEP-74: https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md
@@ -68,6 +70,7 @@ These are product decisions, not values to guess:
 3. Reward formula, eligibility policy, and per-session rate/limits.
 4. Public owner/admin, rewards vault, treasury, and marketing wallet addresses.
 5. Whether mint authority is renounced immediately after genesis mint or controlled by a multisig during a documented distribution window.
+6. The initial maxSupply base-unit value after decimals are approved; the contract's maxSupply is set in immutable-once-deployed storage, and code/data upgrade messages are disabled.
 
 A public wallet address is not a secret. Never send a seed phrase or private key. Wallet addresses are only needed when creating deployment configuration and rehearsing testnet transactions; no wallet address is needed to continue local contract design and tests.
 
