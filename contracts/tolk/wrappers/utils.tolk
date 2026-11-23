@@ -121,25 +121,6 @@ fun JettonMinter.sendChangeMetadata(
     return net.send(from, outMessage);
 }
 
-fun JettonMinter.sendUpgrade(
-    self,
-    from: address,
-    newCode: cell,
-    newData: cell,
-): SendResultList {
-    val outMessage = createMessage({
-        bounce: false,
-        value: grams("0.2"),
-        dest: self.address,
-        body: UpgradeMinterCode {
-            queryId: 0,
-            newData,
-            newCode,
-        },
-    });
-    return net.send(from, outMessage);
-}
-
 fun JettonMinter.getTotalSupply(self): int {
     return self.getJettonData().totalSupply;
 }
