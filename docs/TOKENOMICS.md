@@ -8,7 +8,7 @@ Mining and user rewards allocation: **40% / 400,000,000 RCR**.
 
 Approved token precision: **9 decimals**. The maximum lifetime issuance is 1,000,000,000 RCR (1,000,000,000,000,000,000 base units). Burns reduce circulating supply but **do not restore lifetime mint capacity**. Genesis supply is zero; no premint is authorized.
 
-The issuance architecture must preserve two distinct caps: up to **600,000,000 RCR** for the public issuance side and up to **400,000,000 RCR** for the separate mining issuer. The combined lifetime issuance must never exceed 1,000,000,000 RCR. These caps are not permission to mint; each issuance remains disabled until its corresponding owner-approved release and issuer configuration.
+The minter enforces two distinct lifetime caps: up to **600,000,000 RCR** for the public issuer and up to **400,000,000 RCR** for the separate MiningIssuer. The combined lifetime issuance cannot exceed 1,000,000,000 RCR. MiningIssuer is deployed paused by default; the operator cannot register claims until the owner approves the reward formula and explicitly resumes the contract. Each claim is operator-authorized, uniquely identified, capped, and settled only after the Jetton master verifies the recipient wallet's transfer.
 
 The remaining 60% is intentionally not assigned percentages in this baseline. The owner must approve a complete allocation table, vesting schedules, treasury controls, liquidity policy, and market-launch plan before token deployment. No percentages should be inferred or silently invented.
 
