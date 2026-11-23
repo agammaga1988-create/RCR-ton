@@ -79,3 +79,12 @@ struct MiningIssuerStorage {
     minterAddress: address
     extra: cell
 }
+
+struct MiningIssuerDataReply {
+    adminAddress: address
+    operatorAddress: address
+    minterAddress: address
+    totalIssued: coins
+    totalPending: coins
+    paused: bool
+}
