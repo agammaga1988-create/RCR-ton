@@ -67,7 +67,7 @@ fun JettonMinter.sendMint(
     return net.send(from, outMessage);
 }
 
-fun JettonMinter.sendSetMiningIssuer(
+fun JettonMinter.sendConfigureMiningIssuer(
     self,
     from: address,
     miningIssuerAddress: address,
