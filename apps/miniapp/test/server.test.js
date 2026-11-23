@@ -54,7 +54,7 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal((await fetch(base + "/tonconnect-manifest.json")).status, 503);
     const icon = await fetch(base + "/rcr-icon.png");
     assert.equal(icon.status, 200);
-    assert.match(icon.headers.get("content-type"), /image\\/png/);
+    assert.match(icon.headers.get("content-type"), /image\/png/);
     const iconBytes = Buffer.from(await icon.arrayBuffer());
     assert.deepEqual([...iconBytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     assert.equal(iconBytes.readUInt32BE(16), 180);
