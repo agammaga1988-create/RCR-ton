@@ -29,7 +29,7 @@ The Acton tests are transaction-level tests, not static source scans. The CI run
 The RCR Jetton source is not audited and is not approved for mainnet. The following remain incomplete:
 - A separate 400,000,000 RCR reward vault with signed, replay-safe claims and tested bounce/retry handling.
 - Token decimals, exact base-unit cap, initial metadata and mint policy approval.
-- Deployment scripts and wallet roles.
+- Testnet deployment script is scaffolded; execution still requires owner/deployer wallet and explicit decimals.
 - Telegram TON Connect integration and verified testnet manifest.
 - Testnet deployment, end-to-end rehearsal, independent security review and explicit owner release approval.
 
