@@ -98,3 +98,15 @@ test("session endpoint rate-limits repeated requests from one client", async () 
     assert.equal((await last.json()).error, "rate_limit_exceeded");
   } finally { child.kill("SIGTERM"); }
 });
+
+test("current-session endpoint does not expose another identity and reports no session", async () => {
+  const { child, port } = await startApi();
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/sessions/current`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ userId: "local-user" })
+    });
+    assert.equal(response.status, 404);
+    assert.equal((await response.json()).error, "active_session_not_found");
+  } finally { child.kill("SIGTERM"); }
+});
