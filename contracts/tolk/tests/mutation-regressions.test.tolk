@@ -7,10 +7,10 @@ import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "test-utils"
-import "../contracts/errors"
-import "../contracts/fees-management"
-import "../contracts/messages"
-import "../contracts/storage"
+import "../src/errors"
+import "../src/fees-management"
+import "../src/messages"
+import "../src/storage"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
@@ -790,6 +790,7 @@ get fun `test mutation: minter should report mintable and emit set-code action o
     val upgradedUri = "https://upgraded.meta.example/jetton.json";
     val newData = MinterStorage {
         totalSupply: upgradedSupply,
+        maxSupply: grams("1000000000"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
         metadata: buildTestMetadata(upgradedUri),
