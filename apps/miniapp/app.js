@@ -82,7 +82,7 @@
       return;
     }
     try {
-      const tonConnectUI = new TonConnectUI({ manifestUrl, buttonRootId: "ton-connect" });
+      const tonConnectUI = new TonConnectUI({ manifestUrl, buttonRootId: "ton-connect", analytics: { mode: "off" } });
       tonConnectUI.setConnectionNetwork("-3");
       tonConnectUI.onStatusChange(wallet => {
         const address = wallet?.account?.address;
