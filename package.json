@@ -7,7 +7,7 @@
     "check": "pnpm -r --if-present check && pnpm contracts:build",
     "test": "pnpm -r --if-present test && pnpm contracts:test",
     "build": "pnpm -r --if-present build",
-    "contracts:build": "npx --yes --package=@tact-lang/compiler@1.6.13 tact --config ./tact.config.json --project RCRJetton",
-    "contracts:test": "node --test contracts/test/*.test.js"
+    "contracts:build": "docker run --rm -v \"$PWD/contracts/tolk:/workspace\" -w /workspace ghcr.io/ton-blockchain/acton:1.2.1 build",
+    "contracts:test": "docker run --rm --entrypoint sh -v \"$PWD/contracts/tolk:/workspace\" -w /workspace ghcr.io/ton-blockchain/acton:1.2.1 -lc 'acton build && acton wrapper JettonMinter -o wrappers/JettonMinter.gen.tolk && acton wrapper JettonWallet -o wrappers/JettonWallet.gen.tolk && acton test tests'"
   }
 }
