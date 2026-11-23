@@ -61,7 +61,7 @@ The owner supplied the following public TON addresses and confirmed 9 decimals o
 - Proposed RCR administrator wallet: `UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY`
 - Confirmed token precision: **9 decimals**.
 
-These are recorded as owner-provided values only; this repository has not independently verified wallet ownership or on-chain status. Both supplied friendly addresses use the Mainnet-style `UQ` prefix. They must not be passed to the testnet deployment command. Before any Mainnet transaction, verify both addresses on TON Mainnet using an independent wallet/address display and confirm the intended roles.
+The owner explicitly reconfirmed on 2026-11-23 that these are the intended Mainnet role addresses. Both supplied friendly addresses use the Mainnet-style `UQ` prefix. This confirmation records the intended roles; it does not cryptographically prove wallet ownership or provide signing authority. They must not be passed to the testnet deployment command. Before any Mainnet transaction, the owner must independently verify each address in the signing wallet's receive/account screen and review the exact transaction destination and payload.
 
 Public addresses are not secrets. Never request or store a seed phrase or private key. Signing must happen locally in the owner's wallet or through an audited HSM/KMS signer; no signing key is to be placed in GitHub Actions. A public address alone cannot authorize a deployment or admin transaction.
 
