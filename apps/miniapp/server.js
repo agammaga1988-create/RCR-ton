@@ -49,7 +49,7 @@ const server = createServer(async (req, res) => {
   }
   if (path === "/rcr-icon.png") {
     const iconBytes = Buffer.from(RCR_ICON_BASE64, "base64");
-    return send(res, 200, "image/png", req.method === "HEAD" ? "" : iconBytes, { "cache-control": "public, max-age=86400" });
+    return send(res, 200, "image/png", req.method === "HEAD" ? "" : iconBytes, { "access-control-allow-origin": "*", "cache-control": "public, max-age=86400" });
   }
   if (path !== "/" && path !== "/index.html") return send(res, 404, "text/plain; charset=utf-8", "Not found");
   try {
