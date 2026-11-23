@@ -52,6 +52,7 @@ get fun `test minter restores supply on internal_transfer bounce`() {
     testing.processSingleTraceStep(wallet.address, bouncedMsg);
 
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
+    expect(minter.getCumulativeMinted()).toEqual(0);
 }
 
 get fun `test wallet restores balance on internal_transfer bounce`() {
