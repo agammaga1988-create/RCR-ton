@@ -31,7 +31,11 @@ test("Mini App serves safe health and API configuration", async () => {
     const config = await fetch(base + "/config.js");
     assert.match(await config.text(), /apiBase: ""/);
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
+    const appScript = await fetch(base + "/app.js");
+    assert.equal(appScript.status, 200);
+    assert.match(await appScript.text(), /restoreSession/);
     const page = await fetch(base + "/");
+    assert.match(await page.text(), /<script src="\\/app.js" defer><\\/script>/);
     assert.equal(page.status, 200);
     assert.match(await page.text(), /24-hour earning sessions/);
   } finally { child.kill("SIGTERM"); }
