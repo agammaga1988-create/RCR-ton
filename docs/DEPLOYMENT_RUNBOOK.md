@@ -68,7 +68,7 @@ acton check
 acton script scripts/deploy.tolk
 ```
 
-Only after the local simulation is reviewed should the same script be run with `--net testnet`. It must never be run with `--net mainnet` at this stage.
+Only after the local simulation is reviewed should the named command `acton run deploy-rcr-testnet` be used. That command is pinned to `--net testnet`; do not replace it with a mainnet command.
 
 ## 7. Testnet acceptance
 
