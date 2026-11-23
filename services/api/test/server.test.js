@@ -131,3 +131,13 @@ test("Mini App can restore an active development session after reload", async ()
     assert.equal(restored.endsAt, created.endsAt);
   } finally { child.kill("SIGTERM"); }
 });
+
+test("production current-session endpoint rejects missing Telegram identity", async () => {
+  const { child, port } = await startApi({ NODE_ENV: "production", TELEGRAM_BOT_TOKEN: "test-token" });
+  try {
+    const response = await fetch("http://127.0.0.1:" + port + "/sessions/current", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ initData: "" })
+    });
+    assert.equal(response.status, 401);
+  } finally { child.kill("SIGTERM"); }
+});
