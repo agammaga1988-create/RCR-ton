@@ -7,7 +7,7 @@
     "check": "pnpm -r --if-present check && pnpm contracts:build",
     "test": "pnpm -r --if-present test && pnpm contracts:test",
     "build": "pnpm -r --if-present build",
-    "contracts:build": "cd contracts/tolk && acton build && acton wrapper --all && acton check",
+    "contracts:build": "cd contracts/tolk && acton build && acton wrapper --all && acton check && acton compile scripts/deploy.tolk && acton compile scripts/deploy-mainnet.tolk && acton compile scripts/configure-mainnet-mining-issuer.tolk",
     "contracts:test": "node --test contracts/test/*.test.js && cd contracts/tolk && acton build && acton wrapper --all && acton test tests && acton check"
   }
 }
