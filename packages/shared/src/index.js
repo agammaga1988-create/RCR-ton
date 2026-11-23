@@ -2,7 +2,9 @@ import { randomUUID } from "node:crypto";
 
 export const TOKEN = Object.freeze({
   symbol: "RCR",
+  decimals: 9,
   totalSupply: 1_000_000_000n,
+  publicIssuanceCap: 600_000_000n,
   rewardsAllocation: 400_000_000n,
   sessionDurationSeconds: 24 * 60 * 60,
 });
