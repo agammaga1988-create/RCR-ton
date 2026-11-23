@@ -20,7 +20,7 @@ fun deployMiningIssuer(minter: JettonMinter, admin: Treasury, operatorAddress: a
         extra: MiningIssuerExtra {
             totalIssued: 0,
             totalPending: 0,
-            paused: false,
+            paused: true,
             claims: [],
         }.toCell(),
     });
@@ -34,6 +34,8 @@ get fun `test mining issuer: claim mints once and records confirmed payout`() {
     val issuer = deployMiningIssuer(minter, deployer, deployer.address);
     val configured = minter.sendConfigureMiningIssuer(deployer.address, issuer.address);
     expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
+    val resumed = issuer.sendResumeMining(deployer.address);
+    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
 
     val amount = grams("2");
     val result = issuer.sendRegisterClaim(
@@ -56,6 +58,8 @@ get fun `test mining issuer: duplicate claim identifiers are rejected`() {
     val issuer = deployMiningIssuer(minter, deployer, deployer.address);
     val configured = minter.sendConfigureMiningIssuer(deployer.address, issuer.address);
     expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
+    val resumed = issuer.sendResumeMining(deployer.address);
+    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
     val amount = grams("1");
     val first = issuer.sendRegisterClaim(deployer.address, 9, recipient.address, amount, grams("0.3"), grams("0.5"));
     expect(first).toHaveSuccessfulTx<RegisterMiningClaim>({ from: deployer.address, to: issuer.address });
@@ -89,9 +93,35 @@ get fun `test mining issuer: failed mint becomes retryable and can be retried sa
 
     val configured = minter.sendConfigureMiningIssuer(deployer.address, issuer.address);
     expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
+    val resumed = issuer.sendResumeMining(deployer.address);
+    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
     val retry = issuer.sendRetryClaim(deployer.address, 17, grams("0.3"), grams("0.5"));
     expect(retry).toHaveSuccessfulTx<RetryMiningClaim>({ from: deployer.address, to: issuer.address });
     expect(issuer.getMiningIssuerData().totalIssued).toEqual(grams("2"));
     expect(issuer.getMiningIssuerData().totalPending).toEqual(0);
     expect(minter.getMiningIssued()).toEqual(grams("2"));
+}
+
+get fun `test mining issuer: starts paused and rejects claims until admin resumes`() {
+    val (minter, deployer, recipient) = setupTest(0, rcrMaxSupplyBaseUnits(9));
+    val issuer = deployMiningIssuer(minter, deployer, deployer.address);
+    expect(issuer.getMiningIssuerData().paused).toEqual(true);
+
+    val blocked = issuer.sendRegisterClaim(
+        deployer.address,
+        31,
+        recipient.address,
+        grams("1"),
+        grams("0.3"),
+        grams("0.5"),
+    );
+    expect(blocked).toHaveFailedTx<RegisterMiningClaim>({
+        from: deployer.address,
+        to: issuer.address,
+        exitCode: ERROR_MINING_PAUSED,
+    });
+
+    val resumed = issuer.sendResumeMining(deployer.address);
+    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
+    expect(issuer.getMiningIssuerData().paused).toEqual(false);
 }
