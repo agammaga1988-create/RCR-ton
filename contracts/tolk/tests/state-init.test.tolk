@@ -35,7 +35,7 @@ get fun `test state: should mint maximum public issuer allocation`() {
     });
 
     expect(wallet.getJettonBalance()).toEqual(maxJettonValue);
-    expect(minter.getTotalSupply()).toEqual(MAX_JETTON_VALUE);
+    expect(minter.getTotalSupply()).toEqual(maxJettonValue);
 }
 
 get fun `test state: wallet storage and init-state bounds should match fee constants`() {
