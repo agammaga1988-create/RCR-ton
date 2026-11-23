@@ -1,6 +1,6 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
-import { createEarningSession, getPool, closePool } from "../src/database.js";
+import { createEarningSession, getCurrentEarningSession, getPool, closePool } from "../src/database.js";
 
 const enabled = process.env.RCR_TEST_DATABASE === "1" && Boolean(process.env.DATABASE_URL);
 function testUserId() {
@@ -43,4 +43,13 @@ test("audit rows reject UPDATE and TRUNCATE", { skip: !enabled }, async () => {
     /append-only/
   );
   await assert.rejects(pool.query("TRUNCATE audit_events"), /append-only/);
+});
+
+test("PostgreSQL restores the active session for its verified Telegram identity", { skip: !enabled }, async () => {
+  const telegramUserId = testUserId();
+  const created = await createEarningSession(telegramUserId);
+  const restored = await getCurrentEarningSession(telegramUserId);
+  assert.equal(restored.id, created.id);
+  assert.equal(restored.userId, telegramUserId);
+  assert.equal(restored.endsAt, created.endsAt);
 });
