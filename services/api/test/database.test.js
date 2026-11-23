@@ -88,12 +88,21 @@ test("reward accounting migration installs a disabled policy and rejects invalid
     ),
     error => error.code === "23514"
   );
+  await pool.query(
+    `INSERT INTO reward_ledger (id, session_id, user_id, formula_version, amount_units)
+     VALUES (gen_random_uuid(), $1, $2, 1, 1)`,
+    [session.id, user.rows[0].id]
+  );
+  await assert.rejects(
+    pool.query("UPDATE reward_ledger SET amount_units = 2 WHERE session_id = $1", [session.id]),
+    /accounting facts are immutable/
+  );
   await assert.rejects(
     pool.query(
       `INSERT INTO reward_ledger (id, session_id, user_id, formula_version, amount_units)
        VALUES (gen_random_uuid(), $1, $2, 1, 1)`,
       [session.id, user.rows[0].id]
     ),
-    /reward_formula_version/
+    error => error.code === "23505"
   );
 });
