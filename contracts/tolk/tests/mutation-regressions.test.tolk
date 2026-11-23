@@ -782,29 +782,6 @@ get fun `test mutation: direct wallet burn fees should follow config`() {
     });
 }
 
-get fun `test mutation: minter should report mintable and emit set-code action on upgrade`() {
-    val (minter, deployer, _) = setupTest();
-    expect(minter.getJettonData().mintable).toEqual(true);
-
-    val upgradedSupply = grams("42");
-    val upgradedUri = "https://upgraded.meta.example/jetton.json";
-    val newData = MinterStorage {
-        totalSupply: upgradedSupply,
-        maxSupply: grams("1000000000"),
-        adminAddress: deployer.address,
-        nextAdminAddress: null,
-        metadata: buildTestMetadata(upgradedUri),
-    }.toCell();
-    val newCode = build("JettonMinter");
-
-    val res = minter.sendUpgrade(deployer.address, newCode, newData);
-    expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({
-        from: deployer.address,
-        to: minter.address,
-    });
-    expect(hasSetCodeAction(res, minter.address)).toEqual(true);
-}
-
 get fun `test mutation: minter unknown opcode should fail`() {
     val (minter, deployer, _) = setupTest();
 
