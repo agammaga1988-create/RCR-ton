@@ -9,7 +9,7 @@ const MAINNET_CONFIRMATION = "AUTHORIZE RCR MINING ISSUER"
 
 fun main() {
     val confirmation = env<string>("RCR_MAINNET_ADMIN_CONFIRMATION");
-    assert (confirmation != null && confirmation! == MAINNET_CONFIRMATION) throw 1020;
+    assert (confirmation != null && confirmation == MAINNET_CONFIRMATION) throw 1020;
 
     val adminWallet = scripts.wallet("rcr-mainnet-admin");
     assert (adminWallet.address == parseAddress(RCR_ADMIN)) throw 1021;
@@ -34,7 +34,7 @@ fun main() {
     configured.waitForFirstTransaction();
 
     val configuredAddress = minter.getMiningIssuerAddress();
-    assert (configuredAddress != null && configuredAddress! == miningIssuerAddress) throw 1025;
-    println("RCR MAINNET MINING_ISSUER_CONFIGURED={}", configuredAddress!);
+    assert (configuredAddress != null && configuredAddress == miningIssuerAddress) throw 1025;
+    println("RCR MAINNET MINING_ISSUER_CONFIGURED={}", configuredAddress);
     println("RCR MAINNET ADMIN_ADDRESS={}", adminWallet.address);
 }
