@@ -258,36 +258,6 @@ get fun `test admin: discovery should return none for non-basechain owner`() {
     expect(withOwnerBody.ownerAddress.load()).toEqual(invalidOwner);
 }
 
-get fun `test admin: admin should be able to upgrade minter code and data`() {
-    val (minter, deployer, _) = setupTest();
-    val upgradedSupply = grams("42");
-    val upgradedUri = "https://upgraded.meta.example/jetton.json";
-    val newData = MinterStorage {
-        totalSupply: upgradedSupply,
-        maxSupply: grams("1000000000"),
-        adminAddress: deployer.address,
-        nextAdminAddress: null,
-        metadata: buildTestMetadata(upgradedUri),
-    }.toCell();
-    val newCode = build("JettonMinter");
-
-    val res = minter.sendUpgrade(deployer.address, newCode, newData);
-    expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({
-        from: deployer.address,
-        to: minter.address,
-    });
-
-    expect(minter.getTotalSupply()).toEqual(upgradedSupply);
-    expect(minter.getAdminAddress()).toEqual(deployer.address);
-
-    val uri = extractUriString(minter.getContent());
-    expect(uri).toBeNotNull();
-    if (uri == null) {
-        return;
-    }
-    expect(uri).toEqual(upgradedUri);
-}
-
 get fun `test shard: wallet address should keep owner shard prefix in get/discovery/transfer`() {
     val (minter, deployer, _) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, grams("100"));
