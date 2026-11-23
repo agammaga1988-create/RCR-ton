@@ -17,6 +17,11 @@ test("PostgreSQL creates one durable 24-hour session and rejects a duplicate", {
   assert.equal(session.userId, telegramUserId);
   assert.equal(session.status, "active");
   assert.equal(session.endsAt - session.startsAt, 86_400);
+  const persisted = await getPool().query(
+    "SELECT reward_formula_version FROM earning_sessions WHERE id = $1",
+    [session.id]
+  );
+  assert.equal(persisted.rows[0].reward_formula_version, null);
   await assert.rejects(
     createEarningSession(telegramUserId),
     error => error.code === "active_session_exists"
