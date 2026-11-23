@@ -33,7 +33,7 @@ get fun `test admin: deploy should create minter without bounce`() {
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
-        maxSupply: grams("1000"),
+        maxSupply: 0xffffffffffffffffffffffffffffff,
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
         nextAdminAddress: null,
