@@ -22,6 +22,10 @@ test("PostgreSQL creates one durable 24-hour session and rejects a duplicate", {
     [session.id]
   );
   assert.equal(persisted.rows[0].reward_formula_version, null);
+  const nonceColumn = await getPool().query(
+    "SELECT is_identity FROM information_schema.columns WHERE table_name = 'reward_claims' AND column_name = 'chain_claim_id'"
+  );
+  assert.equal(nonceColumn.rows[0].is_identity, "YES");
   await assert.rejects(
     createEarningSession(telegramUserId),
     error => error.code === "active_session_exists"
