@@ -30,13 +30,19 @@
       <p class="muted" id="session-copy">Open this Mini App inside Telegram to verify your account and start a session.</p>
       <button id="start" type="button" disabled>Checking configuration…</button>
     </section>
+    <section class="card" aria-labelledby="wallet-title">
+      <h2 id="wallet-title">TON wallet</h2>
+      <div id="ton-connect"></div>
+      <p class="muted" id="wallet-status" role="status" aria-live="polite">Wallet connection is available after the public HTTPS manifest is configured.</p>
+    </section>
     <section class="card">
       <strong>Non-custodial by design</strong>
-      <p class="muted">RCR will never ask for your seed phrase or private key. Wallet connection, rewards and withdrawals remain disabled until TON testnet validation and an independent security review are complete.</p>
+      <p class="muted">RCR will never ask for your seed phrase or private key. Wallet connection is testnet-only. This app does not request signatures, transfer funds, or enable rewards and withdrawals.</p>
       <p id="status" class="muted" role="status" aria-live="polite">Connecting…</p>
     </section>
   </main>
   <script src="/config.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@5.0.3/dist/tonconnect-ui.min.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>
