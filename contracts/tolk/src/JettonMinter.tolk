@@ -22,7 +22,6 @@ type AllowedMessageToMinter =
     | ClaimMinterAdmin
     | DropMinterAdmin
     | ChangeMinterMetadata
-    | UpgradeMinterCode
     | TopUpTons
 
 fun onBouncedMessage(in: InMessageBounced) {
@@ -172,13 +171,6 @@ fun onInternalMessage(in: InMessage) {
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             storage.metadata = msg.newMetadata;
             storage.save();
-        }
-
-        UpgradeMinterCode => {
-            val storage = lazy MinterStorage.load();
-            assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            contract.setCodePostponed(msg.newCode);
-            contract.setData(msg.newData);
         }
 
         TopUpTons => {
