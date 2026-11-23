@@ -223,6 +223,7 @@ fun setupTest(initialSupply: int = 0, maxSupply: coins = 0xfffffffffffffffffffff
             miningIssuerAddress: null,
             publicIssued: initialSupply,
             miningIssued: 0,
+            pendingMints: [],
         }.toCell(),
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
