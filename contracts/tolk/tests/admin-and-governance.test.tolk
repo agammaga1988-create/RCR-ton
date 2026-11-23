@@ -352,3 +352,21 @@ get fun `test shard: wallet address should keep owner shard prefix in get/discov
         prefix += 1;
     }
 }
+
+get fun `test admin: mint cannot exceed the fixed max supply`() {
+    val (minter, deployer, _) = setupTest(0, grams("1"));
+    val mintResult = minter.sendMint(
+        deployer.address,
+        deployer.address,
+        grams("1.1"),
+        grams("0.05"),
+        grams("0.3"),
+    );
+    expect(mintResult).toHaveFailedTx<MintNewJettons>({
+        from: deployer.address,
+        to: minter.address,
+        exitCode: ERROR_MAX_SUPPLY,
+    });
+    expect(minter.getTotalSupply()).toEqual(0);
+    expect(userWallet(minter, deployer.address).getJettonBalance()).toEqual(0);
+}
