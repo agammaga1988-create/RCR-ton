@@ -31,6 +31,7 @@ fun onBouncedMessage(in: InMessageBounced) {
 
     var storage = lazy MinterStorage.load();
     storage.totalSupply -= msg.jettonAmount;
+    storage.totalMinted -= msg.jettonAmount;
     storage.save();
 }
 
@@ -120,8 +121,9 @@ fun onInternalMessage(in: InMessage) {
             // a little more than needed, it’s ok since it’s sent by the admin and excesses will return back
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
 
-            assert (storage.totalSupply + internalTransferMsg.jettonAmount <= storage.maxSupply) throw ERROR_MAX_SUPPLY;
+            assert (storage.totalMinted + internalTransferMsg.jettonAmount <= storage.maxSupply) throw ERROR_MAX_SUPPLY;
             storage.totalSupply += internalTransferMsg.jettonAmount;
+            storage.totalMinted += internalTransferMsg.jettonAmount;
             storage.save();
 
             reserveGramsOnBalance(
@@ -202,6 +204,11 @@ get fun get_wallet_address(ownerAddress: address): address {
 get fun get_next_admin_address(): address? {
     val storage = lazy MinterStorage.load();
     return storage.nextAdminAddress;
+}
+
+get fun get_cumulative_minted(): coins {
+    val storage = lazy MinterStorage.load();
+    return storage.totalMinted;
 }
 
 get fun get_max_supply(): coins {
