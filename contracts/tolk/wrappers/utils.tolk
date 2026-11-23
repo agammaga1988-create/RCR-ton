@@ -67,6 +67,20 @@ fun JettonMinter.sendMint(
     return net.send(from, outMessage);
 }
 
+fun JettonMinter.sendSetMiningIssuer(
+    self,
+    from: address,
+    miningIssuerAddress: address,
+): SendResultList {
+    val outMessage = createMessage({
+        bounce: false,
+        value: grams("0.05"),
+        dest: self.address,
+        body: SetMiningIssuer { queryId: 0, miningIssuerAddress },
+    });
+    return net.send(from, outMessage);
+}
+
 fun JettonMinter.sendChangeAdmin(
     self,
     from: address,
