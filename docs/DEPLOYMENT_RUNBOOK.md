@@ -99,7 +99,7 @@ Only after the local simulation is reviewed should the named command `acton run 
 The Mainnet flow is split into two independently signed phases because the deployment and administrator addresses are different and TON Connect authorizes one connected wallet per session.
 
 **Phase 1 — deployer wallet:** `contracts/tolk/scripts/deploy-mainnet.tolk`:
-- refuses to proceed unless `RCR_MAINNET_DEPLOY_CONFIRMATION=DEPLOY RCR MAINNET`;
+- refuses to proceed unless `RCR_MAINNET_DEPLOY_CONFIRMATION=314159`;
 - connects through TON Connect and checks that the connected wallet exactly matches the owner's supplied deployment address;
 - uses the separately supplied admin address as Jetton admin/public issuer;
 - requires a non-empty `JETTON_IMAGE` value;
@@ -108,7 +108,7 @@ The Mainnet flow is split into two independently signed phases because the deplo
 - prints both deployed contract addresses. It intentionally does not authorize the issuer yet.
 
 **Phase 2 — admin wallet:** `contracts/tolk/scripts/configure-mainnet-mining-issuer.tolk`:
-- requires `RCR_MAINNET_ADMIN_CONFIRMATION=AUTHORIZE RCR MINING ISSUER`;
+- requires `RCR_MAINNET_ADMIN_CONFIRMATION=271828`;
 - opens a separate TON Connect session and checks the connected wallet against the owner-provided admin address;
 - requires the two contract addresses printed by Phase 1;
 - verifies the minter admin/public issuer and that no issuer is already configured;
@@ -118,7 +118,7 @@ Use the local Acton CLI from `contracts/tolk` only after local emulation and a t
 
 ```sh
 cd contracts/tolk
-export RCR_MAINNET_DEPLOY_CONFIRMATION="DEPLOY RCR MAINNET"
+export RCR_MAINNET_DEPLOY_CONFIRMATION=314159
 export JETTON_IMAGE="https://<owner-controlled-host>/rcr-icon.png"
 acton run deploy-rcr-mainnet
 ```
@@ -126,7 +126,7 @@ acton run deploy-rcr-mainnet
 Record the printed `MINTER_ADDRESS` and `MINING_ISSUER_ADDRESS`. Then connect the admin wallet in the separate session:
 
 ```sh
-export RCR_MAINNET_ADMIN_CONFIRMATION="AUTHORIZE RCR MINING ISSUER"
+export RCR_MAINNET_ADMIN_CONFIRMATION=271828
 export RCR_MINTER_ADDRESS="<printed minter address>"
 export RCR_MINING_ISSUER_ADDRESS="<printed mining issuer address>"
 acton run configure-rcr-mainnet-mining-issuer
