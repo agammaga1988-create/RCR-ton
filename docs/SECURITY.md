@@ -9,7 +9,17 @@
 - TON Connect: wallet interaction only; user signs transactions in their wallet.
 - Operators: least-privilege access with auditable changes.
 
-## Threats and controls
+## Implemented baseline controls
+
+- Telegram Mini App init data is HMAC-verified server-side; duplicate fields, invalid signatures, stale timestamps, future timestamps, and malformed user identities are rejected.
+- Session requests have a 16 KiB body limit, JSON content-type validation, request/header timeouts, per-client in-process rate limiting, and generic 500 responses that do not expose database or stack details.
+- Responses include no-store, nosniff, no-referrer, and restrictive content-security headers.
+- Production session creation fails closed when Telegram authentication or PostgreSQL is not configured.
+- PostgreSQL uses a transaction and a partial unique index to prevent overlapping active sessions.
+- Audit rows reject UPDATE, DELETE, and TRUNCATE through database triggers; PUBLIC is also denied mutation privileges.
+- Reward claims remain disabled. No wallet private keys or seed phrases are accepted or stored.
+
+## Threats and required controls
 
 | Threat | Required control |
 |---|---|
@@ -22,6 +32,14 @@
 | Treasury key compromise | Multisig, hardware-backed custody, delayed high-risk operations |
 | Malicious dependency | Lockfile, pinned versions, dependency scanning |
 | Admin abuse | Append-only audit events and dual control for critical actions |
+
+## Production limitations — not yet release-ready
+
+- The API rate limiter is process-local. Production deployments with multiple instances or reverse proxies must add a trusted edge/WAF limit and a shared distributed limiter; do not trust arbitrary client-supplied forwarding headers.
+- The initial schema migration is repeatable but does not yet have a version ledger. Use a dedicated migration role and a separate least-privilege runtime role.
+- PostgreSQL integration tests, backup/restore rehearsal, monitoring, and independent security review are still required.
+- Reward calculation, allocation accounting, claim authorization, treasury routing, and on-chain contracts are not yet enabled.
+- Telegram Mini App is still a preview; TON Connect requires a deployed HTTPS manifest and testnet verification.
 
 ## Mandatory rules
 
