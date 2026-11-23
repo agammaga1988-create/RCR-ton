@@ -18,6 +18,14 @@ function = "jettonWalletCompiledCode"
 [contracts.JettonWallet]
 src = "src/JettonWallet.tolk"
 
+[contracts.MiningIssuer]
+src = "src/MiningIssuer.tolk"
+
+[[contracts.MiningIssuer.depends]]
+name = "JettonWallet"
+kind = "embed_code"
+function = "jettonWalletCompiledCode"
+
 [import-mappings]
 acton = ".acton"
 gen = "gen"
@@ -30,7 +38,8 @@ output-fift = "build/fift"
 [scripts]
 generate-wrappers = """
 acton wrapper JettonMinter -o wrappers/JettonMinter.gen.tolk &&
-acton wrapper JettonWallet -o wrappers/JettonWallet.gen.tolk
+acton wrapper JettonWallet -o wrappers/JettonWallet.gen.tolk &&
+acton wrapper MiningIssuer -o wrappers/MiningIssuer.gen.tolk
 """
 test-jetton = "acton test tests"
 deploy-rcr-testnet = "acton script scripts/deploy.tolk --net testnet"
