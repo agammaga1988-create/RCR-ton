@@ -1,13 +1,20 @@
 # TON Contracts
 
-Contract implementation is pending formal interface and threat-model review.
+Contract source implementation is the next engineering milestone. This directory is deliberately not deployable yet.
 
-Required properties:
-- Fixed supply cap of 1,000,000,000 RCR.
-- Rewards allocation capped at 400,000,000 RCR.
-- Replay-protected claims.
-- Explicit pause and role controls.
-- No owner function capable of silently seizing arbitrary user balances.
-- Comprehensive Tact tests before testnet deployment.
+Read [the contract design and security gates](../docs/CONTRACT_DESIGN.md) before adding code.
 
-Do not deploy this placeholder as a token contract.
+## Required deliverables
+
+- TEP-74 Jetton master and wallet, with TEP-64 metadata and standard getters.
+- Fixed maximum supply of 1,000,000,000 RCR.
+- Separate rewards vault capped at 400,000,000 RCR.
+- Replay-protected, immutable claim IDs and amounts.
+- Explicit role separation, pause controls, and safe mint-authority shutdown.
+- Full Tact compiler build, TON Sandbox tests, property tests, and testnet rehearsal.
+
+## Do not deploy
+
+No Tact source, compiled artifacts, deployment config, token decimals, owner address, or reward formula has been approved yet. Do not turn an untested template into a production contract. The remaining 600,000,000 RCR allocation and all wallet destinations must be explicitly approved before token deployment.
+
+**Never commit a seed phrase, private key, mnemonic, or wallet signing secret.** Public addresses can be supplied later for deployment configuration; they are not required for the current design phase.
