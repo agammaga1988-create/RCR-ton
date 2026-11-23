@@ -3,6 +3,7 @@ import "@acton/io"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
 import "utils/common"
+import "tokenomics"
 
 fun main() {
     val deployer = promptJettonWallet("JETTON_DEPLOYER", "Select Jetton Deployer");
@@ -14,7 +15,7 @@ fun main() {
     );
 
     assert (adminWallet.address.getWorkchain() == 0) throw 1006;
-    assert (operatorAddress.getWorkchain() == MY_WORKCHAIN) throw 1006;
+    assert (operatorAddress.getWorkchain() == 0) throw 1006;
 
     val minterStorage = promptJettonMinterStorage(adminWallet.address);
     assert (minterStorage.totalSupply == 0) throw 1003;
