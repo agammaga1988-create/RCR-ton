@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const MAX_AUTH_AGE_SECONDS = 24 * 60 * 60;
+const MAX_AUTH_AGE_SECONDS = 15 * 60;
 const FUTURE_CLOCK_SKEW_SECONDS = 30;
 
 function safeHexEqual(left, right) {
