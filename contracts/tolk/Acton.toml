@@ -39,4 +39,5 @@ acton wrapper MiningIssuer -o wrappers/MiningIssuer.gen.tolk
 """
 test-jetton = "acton test tests"
 deploy-rcr-testnet = "acton script scripts/deploy.tolk --net testnet"
-deploy-rcr-mainnet = "acton script scripts/deploy-mainnet.tolk --net mainnet"
+deploy-rcr-mainnet = "acton script scripts/deploy-mainnet.tolk --net mainnet --tonconnect"
+configure-rcr-mainnet-mining-issuer = "acton script scripts/configure-mainnet-mining-issuer.tolk --net mainnet --tonconnect"
