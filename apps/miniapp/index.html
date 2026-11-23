@@ -107,14 +107,39 @@
         }
       }
       button.addEventListener("click", start);
-      if (!tg?.initData) {
-        button.textContent = "Open inside Telegram";
-        message("Telegram authentication data is missing. Open this app inside Telegram.", "error");
-      } else {
-        button.textContent = "Start 24-hour session";
-        button.disabled = false;
-        message("Telegram app detected. Server authentication will verify your account.");
+      async function restoreSession() {
+        if (!tg?.initData) {
+          button.textContent = "Open inside Telegram";
+          message("Telegram authentication data is missing. Open this app inside Telegram.", "error");
+          return;
+        }
+        button.textContent = "Checking your session…";
+        button.disabled = true;
+        try {
+          const response = await fetch(apiBase + "/sessions/current", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ initData: tg.initData }),
+            credentials: "omit",
+            cache: "no-store"
+          });
+          if (response.status === 404) {
+            button.textContent = "Start 24-hour session";
+            button.disabled = false;
+            message("Telegram verified. You can start your 24-hour session.");
+            return;
+          }
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Could not restore your session.");
+          showSession(data.session);
+          message("Your active session was restored securely.", "success");
+        } catch (error) {
+          button.textContent = "Retry session check";
+          button.disabled = false;
+          message(error.message || "Could not reach the session service.", "error");
+        }
       }
+      restoreSession();
     })();
   </script>
 </body>
