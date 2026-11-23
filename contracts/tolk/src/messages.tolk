@@ -132,3 +132,7 @@ struct (0x52435204) ChangeMiningOperator {
 struct (0x52435205) PauseMining {}
 
 struct (0x52435206) ResumeMining {}
+
+struct (0x52435207) MintSuccessNotification {
+    queryId: uint64
+}
