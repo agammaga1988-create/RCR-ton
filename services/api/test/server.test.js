@@ -110,3 +110,24 @@ test("current-session endpoint does not expose another identity and reports no s
     assert.equal((await response.json()).error, "active_session_not_found");
   } finally { child.kill("SIGTERM"); }
 });
+
+test("Mini App can restore an active development session after reload", async () => {
+  const { child, port } = await startApi();
+  try {
+    const base = `http://127.0.0.1:${port}`;
+    const started = await fetch(base + "/sessions", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ userId: "reload-test-user" })
+    });
+    assert.equal(started.status, 201);
+    const created = (await started.json()).session;
+    const restoredResponse = await fetch(base + "/sessions/current", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ userId: "reload-test-user" })
+    });
+    assert.equal(restoredResponse.status, 200);
+    const restored = (await restoredResponse.json()).session;
+    assert.equal(restored.id, created.id);
+    assert.equal(restored.endsAt, created.endsAt);
+  } finally { child.kill("SIGTERM"); }
+});
