@@ -1,27 +1,36 @@
 # RCR TON smart contracts
 
-The Jetton master and wallet in this directory are based on the MIT-licensed reference implementation maintained by TON Studio in [tact-lang/jetton](https://github.com/tact-lang/jetton). The upstream source copyright and SPDX headers are retained. Local changes add an immutable maximum-supply constructor parameter and enforce the cap before minting.
+## Production-target toolchain: Tolk + Acton
 
-## Build
+The primary implementation is now under `tolk/`, based on the TON reference-grade Jetton v2.1 implementation in [ton-blockchain/acton-contracts](https://github.com/ton-blockchain/acton-contracts). It uses Tolk and the Acton toolchain, currently pinned to Acton 1.2.1.
 
-From repository root:
+The RCR changes:
+- Add `maxSupply` to minter storage.
+- Reject mint operations that would exceed the configured maximum.
+- Expose `get_max_supply()`.
+- Remove privileged code/data upgrade messages so the configured cap cannot be raised through an admin upgrade.
+- Add a regression test proving an over-cap mint fails without changing supply or wallet balance.
+
+Build and test from repository root:
 
 ```sh
 pnpm contracts:build
+pnpm contracts:test
 ```
 
-The build uses the pinned `@tact-lang/compiler@1.6.13` and Node.js 22. CI compiles the contracts on every push and pull request.
+The Acton tests are transaction-level tests, not static source scans. The CI runs the full upstream Jetton v2.1 test suite with the RCR cap regression.
 
-## RCR supply control
+## Legacy Tact reference
 
-The master contract now requires a `maxSupply` constructor argument, rejects initial supply above it, and rejects mint operations that would exceed it. Deployment must set initial total supply to zero and set this value to the agreed base-unit representation of 1,000,000,000 RCR after token decimals are formally approved. The Tact constructor-parameter model does not provide an `init()` validation hook; the deployment script must reject nonzero genesis supply and verify the cap before submitting StateInit. Do not guess decimals or deploy with a guessed value.
+`src/` contains an earlier Tact v1 Jetton reference port. The Tact compiler now emits a deprecation warning and TON recommends Tolk for new development. Do not deploy the legacy Tact version. The Tolk/Acton project is the production-target implementation.
 
-## Compiler lifecycle warning
+## Release gates
 
-The current Tact compiler package emits a deprecation warning and directs new TON development toward Tolk. This Tact implementation is an interim compatibility/build milestone only. Before production or mainnet, migrate or formally re-implement the Jetton in the currently recommended TON language, then rerun the complete test matrix and security review. A successful compile is not an audit.
+The RCR Jetton source is not audited and is not approved for mainnet. The following remain incomplete:
+- A separate 400,000,000 RCR reward vault with signed, replay-safe claims and tested bounce/retry handling.
+- Token decimals, exact base-unit cap, initial metadata and mint policy approval.
+- Deployment scripts and wallet roles.
+- Telegram TON Connect integration and verified testnet manifest.
+- Testnet deployment, end-to-end rehearsal, independent security review and explicit owner release approval.
 
-## Scope and release status
-
-This directory currently implements the TEP-74 Jetton master/wallet reference base with the RCR max-supply guard. It does **not** yet implement the separate 400,000,000 RCR reward vault, backend-signed claim registration, replay-safe claims, token metadata hosting, or deployment scripts. It is not audited and is not approved for mainnet.
-
-Next required engineering steps are sandbox tests for the customized cap and all Jetton message paths, reward-vault design/implementation, wallet/deployment configuration, and an independent security review. Never add seed phrases or private keys to this repository.
+Never commit seed phrases, private keys, mnemonics, or wallet signing secrets.
