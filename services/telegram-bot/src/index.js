@@ -169,27 +169,8 @@ async function telegramWithRetry(method, payload = {}) {
   throw new Error("Bot shutting down");
 }
 
-const bot = await telegramWithRetry("getMe");
-process.stdout.write("Authenticated Telegram bot @" + bot.username + "\n");
 await telegramWithRetry("deleteWebhook", { drop_pending_updates: false });
-await telegramWithRetry("setMyCommands", { commands: [
-  { command: "start", description: "Open the RCR main menu" },
-  { command: "app", description: "Launch the RCR Mini App" },
-  { command: "earn", description: "Learn how 24-hour sessions work" },
-  { command: "status", description: "Check RCR app availability" },
-  { command: "wallet", description: "TON wallet connection help" },
-  { command: "rules", description: "Security rules and warnings" },
-  { command: "help", description: "Show all bot commands" },
-] });
-await telegramWithRetry("setMyDescription", {
-  description: "Official RCR on TON assistant. Launch the Mini App, check project availability, learn about 24-hour sessions, and get wallet safety guidance. Testnet stage; claims and withdrawals are disabled.",
-});
-await telegramWithRetry("setMyShortDescription", {
-  short_description: "RCR on TON — Mini App, sessions and wallet safety.",
-});
-await telegramWithRetry("setChatMenuButton", {
-  menu_button: { type: "web_app", text: "Open RCR", web_app: { url: miniAppUrl } },
-});
+process.stdout.write("RCR Telegram polling started.\\n");
 process.stdout.write("RCR Telegram bot ready. Commands and Mini App menu configured.\n");
 for (const signal of ["SIGTERM", "SIGINT"]) {
   process.on(signal, () => { stopping = true; });
