@@ -2,8 +2,8 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "JettonMinter.gen"
 import "JettonWallet.gen"
-import "../contracts/messages"
-import "../contracts/storage"
+import "../src/messages"
+import "../src/storage"
 
 fun JettonMinter.sendDiscovery(
     self,
