@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import { TOKEN, calculateSessionReward, startSession, completeSession } from "../src/index.js";
 
 test("token supply and rewards allocation are fixed", () => {
+  assert.equal(TOKEN.decimals, 9);
   assert.equal(TOKEN.totalSupply, 1_000_000_000n);
+  assert.equal(TOKEN.publicIssuanceCap, 600_000_000n);
   assert.equal(TOKEN.rewardsAllocation, 400_000_000n);
+  assert.equal(TOKEN.publicIssuanceCap + TOKEN.rewardsAllocation, TOKEN.totalSupply);
 });
 
 test("reward calculation is bounded by remaining allocation", () => {
