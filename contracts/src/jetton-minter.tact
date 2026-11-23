@@ -9,7 +9,6 @@ import "../utils";
 struct JettonMinterState {
     totalSupply: Int as coins;
     mintable: Bool;
-    maxSupply: Int as coins;
     adminAddress: Address;
     jettonContent: Cell;
     jettonWalletCode: Cell;
@@ -134,11 +133,14 @@ contract JettonMinter(
         return JettonMinterState {
             totalSupply: self.totalSupply,
             mintable: self.mintable,
-            maxSupply: self.maxSupply,
             adminAddress: self.owner,
             jettonContent: self.jettonContent,
             jettonWalletCode: codeOf JettonWallet,
         };
+    }
+
+    get fun get_max_supply(): Int {
+        return self.maxSupply;
     }
 
     get fun get_wallet_address(ownerAddress: Address): Address {
