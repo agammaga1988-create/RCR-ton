@@ -5,6 +5,7 @@ import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../../src/storage"
+import "../../src/tokenomics"
 import "../../wrappers/JettonMinter.gen"
 import "../../wrappers/JettonWallet.gen"
 import "../../wrappers/utils"
@@ -100,17 +101,6 @@ fun buildJettonMetadataCell(info: JettonMetadata): cell {
         .contentDict
         .set("decimals".sha256(), SnakeDataReply { string: info.decimals }.toCell());
     return metadata.toCell();
-}
-
-fun rcrMaxSupplyBaseUnits(decimals: int): coins {
-    assert (decimals >= 0 && decimals <= 18) throw 1002;
-    var scale = 1;
-    var i = 0;
-    while (i < decimals) {
-        scale *= 10;
-        i += 1;
-    }
-    return 1000000000 * scale;
 }
 
 fun promptJettonMinterStorage(admin: address): MinterStorage {
