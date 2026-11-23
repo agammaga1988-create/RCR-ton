@@ -329,3 +329,10 @@ get fun get_max_supply(): coins {
     val storage = lazy MinterStorage.load();
     return storage.maxSupply;
 }
+
+get fun get_pending_mint(queryId: uint64): PendingMintRecord? {
+    val storage = lazy MinterStorage.load();
+    val extra = MinterExtra.fromCell(storage.extra);
+    val lookup = extra.pendingMints.get(queryId);
+    return lookup.isFound ? lookup.loadValue() : null;
+}
