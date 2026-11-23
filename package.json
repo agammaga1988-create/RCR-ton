@@ -5,8 +5,9 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "check": "pnpm -r --if-present check && pnpm contracts:build",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm -r --if-present test && pnpm contracts:test",
     "build": "pnpm -r --if-present build",
-    "contracts:build": "npx --yes --package=@tact-lang/compiler@1.6.13 tact --config ./tact.config.json --project RCRJetton"
+    "contracts:build": "npx --yes --package=@tact-lang/compiler@1.6.13 tact --config ./tact.config.json --project RCRJetton",
+    "contracts:test": "node --test contracts/test/*.test.js"
   }
 }
