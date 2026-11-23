@@ -17,8 +17,17 @@ Set `DATABASE_URL` in the API deployment secret store. Optionally set `PG_POOL_M
 
 Run `pnpm --filter @rcr/api migrate` after provisioning PostgreSQL 16+.
 
-Without a database URL, the API uses in-memory sessions only in non-production development. Production fails closed with `database_not_configured`.
+The migration runner takes a PostgreSQL advisory lock and records successful versions in `schema_migrations`. Re-running an applied migration is a no-op. The initial SQL remains idempotent to support safe recovery if the schema transaction commits but the version record cannot be written.
 
-## Important remaining controls
+Without a database URL, the API uses in-memory sessions only in non-production development. Production session creation fails closed with `database_not_configured`.
 
-Before production, use a dedicated migration role and a separate least-privilege runtime role. The migration command currently applies the initial schema; production rollout still needs a migration ledger, backup/restore rehearsal, connection monitoring, and integration tests against a managed PostgreSQL instance.
+## Production database controls
+
+- Use a dedicated migration role for DDL and a separate least-privilege runtime role.
+- Grant the runtime role only the required SELECT/INSERT/UPDATE privileges; do not grant schema ownership or audit-row mutation.
+- Keep PostgreSQL TLS certificate validation enabled.
+- Configure automated backups, point-in-time recovery, connection monitoring, and alerting.
+- Rehearse backup restoration and migration rollback/recovery before launch.
+- Run integration and concurrency tests against PostgreSQL 16+ before enabling claims.
+
+The migration runner and schema are versioned, but managed-database integration tests, backup/restore rehearsal, monitoring, and an independent security review remain release gates.
