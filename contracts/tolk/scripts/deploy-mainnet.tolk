@@ -1,6 +1,7 @@
 import "@acton/env"
 import "@acton/emulation/scripts"
 import "@acton/io"
+import "@acton/fmt"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
 import "utils/common"
@@ -11,10 +12,10 @@ import "@wrappers/utils"
 // MiningIssuer authorization is intentionally a separate admin-wallet step.
 const RCR_DEPLOYER = "UQDvqZ56PiYwhyyUshMJR4VGyUEWogLhhnQKsaMo0XWzIoZv"
 const RCR_ADMIN = "UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY"
-const MAINNET_CONFIRMATION = "DEPLOY RCR MAINNET"
+const MAINNET_CONFIRMATION = 314159
 
 fun main() {
-    val confirmation = env<string>("RCR_MAINNET_DEPLOY_CONFIRMATION");
+    val confirmation = env<int>("RCR_MAINNET_DEPLOY_CONFIRMATION");
     assert (confirmation != null && confirmation == MAINNET_CONFIRMATION) throw 1010;
 
     val deployer = scripts.wallet("rcr-mainnet-deployer");
@@ -24,7 +25,7 @@ fun main() {
     assert (adminAddress.getWorkchain() == 0) throw 1013;
 
     val imageUrl = env<string>("JETTON_IMAGE");
-    assert (imageUrl != null && imageUrl != "") throw 1014;
+    assert (imageUrl != null) throw 1014;
 
     val operatorAddress = promptJettonAddress(
         "RCR_MINING_OPERATOR_ADDRESS",
