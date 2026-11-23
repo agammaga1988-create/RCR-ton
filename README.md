@@ -33,6 +33,6 @@ pnpm check
 pnpm contracts:build
 ```
 
-The TEP-74 Jetton master/wallet reference source is under `contracts/src`; the master adds an immutable maximum-supply guard. Its build is enforced in CI. The separate rewards vault, reward claims, wallet configuration, and testnet deployment are not complete yet.
+The primary Jetton implementation is Tolk/Acton v2.1 under `contracts/tolk`, with an RCR maximum-supply guard and privileged code upgrades disabled. CI builds it and runs the upstream transaction-level Jetton suite plus RCR cap regression. The older Tact source under `contracts/src` is retained as a non-deployable migration reference. The separate rewards vault, production reward claims, wallet configuration, and testnet deployment are not complete yet.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) before implementing or enabling production functionality.
