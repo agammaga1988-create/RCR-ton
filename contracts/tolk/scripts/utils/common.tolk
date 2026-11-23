@@ -8,6 +8,7 @@ import "../../src/storage"
 import "../../src/tokenomics"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/JettonWallet.gen"
+import "@wrappers/MiningIssuer.gen"
 import "@wrappers/utils"
 
 const JETTON_DEFAULT_NAME = "RCR"
@@ -176,4 +177,29 @@ fun printJettonWalletInfo(minter: JettonMinter, owner: address, label: string) {
     } else {
         println("{} WALLET_BALANCE=<unavailable>", label);
     }
+}
+
+fun buildMiningIssuerStorage(
+    admin: address,
+    operatorAddress: address,
+    minterAddress: address,
+): MiningIssuerStorage {
+    return {
+        adminAddress: admin,
+        operatorAddress,
+        minterAddress,
+        extra: MiningIssuerExtra {
+            totalIssued: 0,
+            totalPending: 0,
+            paused: false,
+            claims: [],
+        }.toCell(),
+    };
+}
+
+fun deployMiningIssuer(deployer: ActonWallet, storage: MiningIssuerStorage): MiningIssuer {
+    val issuer = MiningIssuer.fromStorage(storage);
+    val res = issuer.sendDeploy(deployer.address, { value: grams("0.05") });
+    res.waitForFirstTransaction();
+    return issuer;
 }
