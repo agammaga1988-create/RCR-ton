@@ -54,7 +54,23 @@ Public addresses are not secrets. Never request or store a seed phrase or privat
 
 The owner must approve token decimals, initial mint amount, metadata URI, reward formula, complete remaining 600,000,000 RCR allocation, and the governance/renunciation policy before constructor arguments can be finalized.
 
-## 6. Testnet acceptance
+## 6. Testnet deployment script
+
+The Acton script at `contracts/tolk/scripts/deploy.tolk` defaults to zero genesis supply, requires an explicit decimals value (0–18), computes the 1,000,000,000 RCR cap in integer base units, and uses a separately supplied admin address (defaulting to the selected deployer). It does not guess token decimals or a token image.
+
+Run locally in Acton emulation first:
+
+```sh
+cd contracts/tolk
+acton build
+acton wrapper --all
+acton check
+acton script scripts/deploy.tolk
+```
+
+Only after the local simulation is reviewed should the same script be run with `--net testnet`. It must never be run with `--net mainnet` at this stage.
+
+## 7. Testnet acceptance
 
 A testnet release requires:
 - successful build from a clean checkout;
@@ -64,6 +80,6 @@ A testnet release requires:
 - end-to-end Telegram Mini App session test against the testnet environment;
 - documented rollback/disable procedure.
 
-## 7. Mainnet prohibition
+## 8. Mainnet prohibition
 
 No mainnet deployment, token mint, paid reward, or withdrawal is authorized until the reward vault is implemented and tested, all allocations and wallet addresses are approved, a third-party smart-contract audit is complete, and the owner explicitly approves the final release.
