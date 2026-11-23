@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "check": "pnpm -r --if-present check",
+    "check": "pnpm -r --if-present check && pnpm contracts:build",
     "test": "pnpm -r --if-present test",
-    "build": "pnpm -r --if-present build"
+    "build": "pnpm -r --if-present build",
+    "contracts:build": "npx --yes @tact-lang/compiler@1.6.13 --config ./tact.config.json --project RCRJetton"
   }
 }
