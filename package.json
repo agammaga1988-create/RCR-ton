@@ -7,6 +7,6 @@
     "check": "pnpm -r --if-present check && pnpm contracts:build",
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build",
-    "contracts:build": "npx --yes @tact-lang/compiler@1.6.13 --config ./tact.config.json --project RCRJetton"
+    "contracts:build": "npx --yes --package=@tact-lang/compiler@1.6.13 tact --config ./tact.config.json --project RCRJetton"
   }
 }
