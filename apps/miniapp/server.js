@@ -15,7 +15,6 @@ function send(res, status, type, body) {
     "referrer-policy": "no-referrer",
     "cache-control": "no-store",
     "content-security-policy": "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self' https:; img-src 'self' data:; frame-ancestors https://web.telegram.org https://*.telegram.org",
-    "x-frame-options": "SAMEORIGIN"
   });
   res.end(body);
 }
