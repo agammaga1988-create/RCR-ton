@@ -7,7 +7,7 @@ async function startMiniApp() {
   const port = 18_000 + Math.floor(Math.random() * 10_000);
   const child = spawn(process.execPath, ["server.js"], {
     cwd: fileURLToPath(new URL("..", import.meta.url)),
-    env: { ...process.env, PORT: String(port), HOST: "127.0.0.1", RCR_API_BASE: "https://api.example.test" },
+    env: { ...process.env, PORT: String(port), HOST: "127.0.0.1", RCR_API_BASE: "" },
     stdio: "ignore"
   });
   for (let i = 0; i < 40; i++) {
@@ -29,7 +29,7 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal((await health.json()).ok, true);
     assert.equal(health.headers.get("x-content-type-options"), "nosniff");
     const config = await fetch(base + "/config.js");
-    assert.match(await config.text(), /https:\/\/api\.example\.test/);
+    assert.match(await config.text(), /apiBase: ""/);
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
     const page = await fetch(base + "/");
     assert.equal(page.status, 200);
