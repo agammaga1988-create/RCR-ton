@@ -56,7 +56,7 @@ The owner must approve token decimals, initial mint amount, metadata URI, reward
 
 ## 6. Testnet deployment script
 
-The Acton script at `contracts/tolk/scripts/deploy.tolk` defaults to zero genesis supply, requires an explicit decimals value (0–18), computes the 1,000,000,000 RCR cap in integer base units, and uses a separately supplied admin address (defaulting to the selected deployer). It does not guess token decimals or a token image.
+The Acton script at `contracts/tolk/scripts/deploy.tolk` defaults to zero genesis supply, uses the owner-approved fixed 9 decimals, computes the 1,000,000,000 RCR lifetime cap in integer base units, and uses a separately supplied admin address (defaulting to the selected deployer). It does not guess token decimals or a token image.
 
 Run locally in Acton emulation first:
 
