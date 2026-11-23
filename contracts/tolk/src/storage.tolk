@@ -8,6 +8,10 @@ struct MinterStorage {
     totalSupply: coins
     totalMinted: coins
     maxSupply: coins
+    publicIssuerAddress: address
+    miningIssuerAddress: address?
+    publicIssued: coins
+    miningIssued: coins
     adminAddress: address?
     nextAdminAddress: address?
     metadata: cell
