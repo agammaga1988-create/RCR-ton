@@ -24,8 +24,8 @@
 - [ ] Atomic 400,000,000 RCR rewards allocation accounting.
 - [x] TEP-74/TEP-89 Jetton v2.1 on Tolk/Acton with RCR max-supply enforcement and privileged code upgrades disabled.
 - [ ] Separate 400,000,000 RCR reward vault with replay-safe claims and tested bounce/retry semantics.
-- [ ] Deploy-script validation for zero genesis supply, approved decimals, and the 1,000,000,000 RCR base-unit cap.
-- [x] Acton transaction-level Jetton suite (76 tests) and RCR over-cap mint regression; [ ] additional property/fuzz tests for the reward vault.
+- [x] Guarded Testnet deployment script: zero genesis supply, explicit decimals (0–18), integer-derived 1,000,000,000 RCR cap; CI checks the script.
+- [x] Acton transaction-level Jetton suite (77 tests), RCR over-cap mint regression, and decimals/base-unit cap tests; [ ] additional property/fuzz tests for the reward vault.
 - [ ] Testnet deployment, indexer reconciliation, and replay-protected claim flow.
 - [ ] Treasury controls, multisig, pause roles, and event monitoring.
 
