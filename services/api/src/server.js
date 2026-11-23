@@ -166,7 +166,7 @@ async function handleCurrentSession(req, res) {
 }
 
 const server = createServer(async (req, res) => {
-  const allowedOrigin = (process.env.RCR_PUBLIC_URL || "").replace(/\\/+$/, "");
+  const allowedOrigin = (process.env.RCR_PUBLIC_URL || "").replace(/\/+$/, "");
   const requestOrigin = req.headers.origin || "";
   const originAllowed = Boolean(allowedOrigin.startsWith("https://") && requestOrigin === allowedOrigin);
   if (originAllowed) {
