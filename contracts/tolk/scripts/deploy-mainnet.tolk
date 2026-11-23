@@ -5,7 +5,7 @@ import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
 import "utils/common"
 import "../src/tokenomics"
-import "../wrappers/utils"
+import "@wrappers/utils"
 
 // Phase 1: deploy from the owner's deployment wallet.
 // MiningIssuer authorization is intentionally a separate admin-wallet step.
@@ -15,7 +15,7 @@ const MAINNET_CONFIRMATION = "DEPLOY RCR MAINNET"
 
 fun main() {
     val confirmation = env<string>("RCR_MAINNET_DEPLOY_CONFIRMATION");
-    assert (confirmation != null && confirmation! == MAINNET_CONFIRMATION) throw 1010;
+    assert (confirmation != null && confirmation == MAINNET_CONFIRMATION) throw 1010;
 
     val deployer = scripts.wallet("rcr-mainnet-deployer");
     val adminAddress = parseAddress(RCR_ADMIN);
@@ -24,7 +24,7 @@ fun main() {
     assert (adminAddress.getWorkchain() == 0) throw 1013;
 
     val imageUrl = env<string>("JETTON_IMAGE");
-    assert (imageUrl != null && imageUrl! != "") throw 1014;
+    assert (imageUrl != null && imageUrl != "") throw 1014;
 
     val operatorAddress = promptJettonAddress(
         "RCR_MINING_OPERATOR_ADDRESS",
