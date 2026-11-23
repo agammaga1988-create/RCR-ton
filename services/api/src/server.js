@@ -27,6 +27,13 @@ function allowSessionRequest(req, now = Date.now()) {
   const key = req.socket.remoteAddress || "unknown";
   let window = requestWindows.get(key);
   if (!window) {
+    if (requestWindows.size >= MAX_RATE_LIMIT_KEYS) {
+      for (const [address, timestamps] of requestWindows) {
+        if (!timestamps.length || timestamps[timestamps.length - 1] <= now - RATE_WINDOW_MS) {
+          requestWindows.delete(address);
+        }
+      }
+    }
     if (requestWindows.size >= MAX_RATE_LIMIT_KEYS) return false;
     window = [];
     requestWindows.set(key, window);
