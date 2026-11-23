@@ -45,3 +45,11 @@ test("public and mining issuers have separate immutable lifetime caps", () => {
   assert.match(tests, /public issuer cannot exceed 600 million RCR/);
   assert.match(tests, /configured mining issuer is capped at 400 million RCR/);
 });
+
+test("mint settlement callbacks are correlated and wallet-authenticated", () => {
+  assert.match(minter, /internalTransferMsg\.queryId == msg\.queryId/);
+  assert.match(minter, /pendingMints\.get\(msg\.queryId\)/);
+  assert.match(minter, /calcAddressOfJettonWallet\(\s*pending\.recipient/);
+  assert.match(minter, /MintSuccessNotification/);
+  assert.match(minter, /MintFailureNotification/);
+});
