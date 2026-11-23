@@ -35,6 +35,17 @@ Responses:
 - `503` required production configuration missing.
 - `500` generic internal error.
 
+## POST /sessions/current
+
+Restores the verified user's current active session after a Mini App reload.
+
+Request:
+```json
+{ "initData": "<raw Telegram.WebApp.initData>" }
+```
+
+Returns `200` with the active session, `404` when no active session exists, or the same authentication/configuration errors as session creation.
+
 ## Important limitations
 
 - Session reward remains null; no reward amount is promised or calculated by this endpoint.
