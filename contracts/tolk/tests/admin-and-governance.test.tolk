@@ -41,6 +41,7 @@ get fun `test admin: deploy should create minter without bounce`() {
             miningIssuerAddress: null,
             publicIssued: 0,
             miningIssued: 0,
+            pendingMints: [],
         }.toCell(),
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
