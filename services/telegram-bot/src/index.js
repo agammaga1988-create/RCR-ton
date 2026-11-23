@@ -65,5 +65,8 @@ await telegram("setMyCommands", { commands: [
   { command: "start", description: "Open the RCR Mini App" },
   { command: "help", description: "RCR safety and help" },
 ] });
+await telegram("setMyDescription", { description: "RCR on TON: open the Mini App, connect your wallet, and follow project updates. Rewards and withdrawals remain disabled until the audited Mainnet launch." });
+await telegram("setMyShortDescription", { short_description: "RCR on TON — Mini App and project updates." });
+await telegram("setChatMenuButton", { menu_button: { type: "web_app", text: "Open RCR", web_app: { url: miniAppUrl } } });
 process.stdout.write("RCR Telegram bot started\\n");
 await poll();
