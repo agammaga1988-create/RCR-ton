@@ -1,6 +1,6 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
-import { createEarningSession, getCurrentEarningSession, getPool, closePool } from "../src/database.js";
+import { createEarningSession, getCurrentEarningSession, accrueCompletedSessionReward, getPool, closePool } from "../src/database.js";
 
 const enabled = process.env.RCR_TEST_DATABASE === "1" && Boolean(process.env.DATABASE_URL);
 function testUserId() {
@@ -77,6 +77,10 @@ test("reward accounting migration installs a disabled policy and rejects invalid
   assert.equal(policy.rows[0].reward_rate_units, null);
   assert.equal(policy.rows[0].mining_cap_units, null);
   await assert.rejects(
+    accrueCompletedSessionReward("00000000-0000-0000-0000-000000000000", "1", 1),
+    error => error.code === "reward_program_disabled"
+  );
+  await assert.rejects(
     pool.query("UPDATE reward_program_config SET enabled = TRUE WHERE singleton = TRUE"),
     error => error.code === "23514"
   );
@@ -130,4 +134,30 @@ test("reward accounting migration installs a disabled policy and rejects invalid
     ),
     error => error.code === "23505"
   );
+
+  await pool.query("UPDATE reward_program_config SET enabled = TRUE WHERE singleton = TRUE");
+  const completedStart = new Date(Date.now() - 25 * 60 * 60 * 1000);
+  const expiredSession = await createEarningSession(testUserId(), completedStart);
+  const accrued = await accrueCompletedSessionReward(expiredSession.id, "1000", 1);
+  assert.equal(accrued.created, true);
+  assert.equal(accrued.status, "accrued");
+  assert.equal(accrued.amountUnits, "1000");
+
+  const replay = await accrueCompletedSessionReward(expiredSession.id, "1000", 1);
+  assert.equal(replay.created, false);
+  assert.equal(replay.id, accrued.id);
+  await assert.rejects(
+    accrueCompletedSessionReward(expiredSession.id, "1001", 1),
+    error => error.code === "reward_idempotency_conflict"
+  );
+
+  const overCapSession = await createEarningSession(
+    testUserId(),
+    new Date(Date.now() - 25 * 60 * 60 * 1000)
+  );
+  await assert.rejects(
+    accrueCompletedSessionReward(overCapSession.id, "400000000000000001", 1),
+    error => error.code === "mining_reward_allocation_exceeded"
+  );
+  await pool.query("UPDATE reward_program_config SET enabled = FALSE WHERE singleton = TRUE");
 });
