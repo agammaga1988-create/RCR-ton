@@ -11,7 +11,7 @@
 
 ## Implemented baseline controls
 
-- Telegram Mini App init data is HMAC-verified server-side; duplicate fields, invalid signatures, stale timestamps, future timestamps, and malformed user identities are rejected.
+- Telegram Mini App init data is HMAC-verified server-side; duplicate fields, invalid signatures, timestamps older than 15 minutes, future timestamps, and malformed user identities are rejected.
 - Session requests have a 16 KiB body limit, JSON content-type validation, request/header timeouts, per-client in-process rate limiting, and generic 500 responses that do not expose database or stack details.
 - Responses include no-store, nosniff, no-referrer, and restrictive content-security headers.
 - Production session creation fails closed when Telegram authentication or PostgreSQL is not configured.
@@ -36,10 +36,10 @@
 ## Production limitations — not yet release-ready
 
 - The API rate limiter is process-local. Production deployments with multiple instances or reverse proxies must add a trusted edge/WAF limit and a shared distributed limiter; do not trust arbitrary client-supplied forwarding headers.
-- The initial schema migration is repeatable but does not yet have a version ledger. Use a dedicated migration role and a separate least-privilege runtime role.
-- PostgreSQL integration tests, backup/restore rehearsal, monitoring, and independent security review are still required.
+- The migration runner uses a version ledger and PostgreSQL advisory lock; managed database role separation and restore rehearsal remain required. Use a dedicated migration role and a separate least-privilege runtime role.
+- PostgreSQL integration tests run in CI against PostgreSQL 16. Production backup/restore rehearsal, monitoring, and independent security review are still required.
 - Reward calculation, allocation accounting, claim authorization, treasury routing, and on-chain contracts are not yet enabled.
-- Telegram Mini App is still a preview; TON Connect requires a deployed HTTPS manifest and testnet verification.
+- Telegram Mini App is still a preview; TON Connect requires a deployed HTTPS manifest and testnet verification. The Mini App UI currently starts sessions but does not connect wallets.
 
 ## Mandatory rules
 
