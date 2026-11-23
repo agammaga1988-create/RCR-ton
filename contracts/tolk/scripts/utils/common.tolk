@@ -191,7 +191,7 @@ fun buildMiningIssuerStorage(
         extra: MiningIssuerExtra {
             totalIssued: 0,
             totalPending: 0,
-            paused: false,
+            paused: true,
             claims: [],
         }.toCell(),
     };
