@@ -9,9 +9,9 @@ import "@acton/types/big_array"
 import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
-import "../contracts/jetton-utils"
-import "../contracts/messages"
-import "../contracts/storage"
+import "../src/jetton-utils"
+import "../src/messages"
+import "../src/storage"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
@@ -210,12 +210,13 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
     return false;
 }
 
-fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
+fun setupTest(initialSupply: int = 0, maxSupply: coins = grams("1000000000")): (JettonMinter, Treasury, Treasury) {
     val deployer = testing.treasury("deployer");
     val notDeployer = testing.treasury("not-deployer");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,
+        maxSupply,
         maxSupply: grams("1000000000"),
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
