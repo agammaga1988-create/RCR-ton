@@ -166,6 +166,20 @@ async function handleCurrentSession(req, res) {
 }
 
 const server = createServer(async (req, res) => {
+  const allowedOrigin = (process.env.RCR_PUBLIC_URL || "").replace(/\\/+$/, "");
+  const requestOrigin = req.headers.origin || "";
+  const originAllowed = Boolean(allowedOrigin.startsWith("https://") && requestOrigin === allowedOrigin);
+  if (originAllowed) {
+    res.setHeader("access-control-allow-origin", allowedOrigin);
+    res.setHeader("vary", "Origin");
+    res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
+    res.setHeader("access-control-allow-headers", "content-type");
+  }
+  if (req.method === "OPTIONS") {
+    if (!originAllowed) return send(res, 403, { error: "origin_not_allowed" });
+    res.writeHead(204, { "cache-control": "no-store" });
+    return res.end();
+  }
   if (req.method === "GET" && req.url === "/health") {
     return send(res, 200, { ok: true, service: "rcr-api" });
   }
