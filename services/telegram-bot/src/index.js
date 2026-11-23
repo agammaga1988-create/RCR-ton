@@ -177,8 +177,7 @@ await telegram("setChatMenuButton", {
   menu_button: { type: "web_app", text: "Open RCR", web_app: { url: miniAppUrl } },
 });
 process.stdout.write("RCR Telegram bot ready. Commands and Mini App menu configured.\n");
-await poll();
-
 for (const signal of ["SIGTERM", "SIGINT"]) {
   process.on(signal, () => { stopping = true; });
 }
+await poll();
