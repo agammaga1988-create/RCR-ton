@@ -18,7 +18,7 @@ References:
 ## 2. Approved supply invariants
 
 - Maximum lifetime issuance: **1,000,000,000 RCR**.
-- Fixed precision: **9 decimals** (1,000,000,000,000,000,000 base units).
+- Candidate precision: **9 decimals** (1,000,000,000,000,000,000 base units), pending explicit owner confirmation before deployment.
 - Public issuer lifetime cap: **600,000,000 RCR**.
 - Separate MiningIssuer lifetime cap: **400,000,000 RCR**.
 - Genesis supply: **zero**; no premint.
