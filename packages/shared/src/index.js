@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 export const TOKEN = Object.freeze({
   symbol: "RCR",
   totalSupply: 1_000_000_000n,
@@ -28,7 +30,7 @@ export function startSession({ userId, nowSeconds, existingSession = null }) {
     throw new Error("an active session already exists");
   }
   return Object.freeze({
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     userId,
     status: SessionStatus.ACTIVE,
     startsAt: nowSeconds,
