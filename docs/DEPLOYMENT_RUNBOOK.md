@@ -4,13 +4,14 @@ This runbook is a controlled checklist. It does not itself deploy or enable the 
 
 ## 1. Build and verify
 
-Use Node.js 22 and pnpm 9.
+Use Node.js 22, pnpm 9, and Acton 1.2.1 (the pinned Tolk toolchain). Install Acton using the [official installation guide](https://ton-blockchain.github.io/acton/docs/installation).
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm check
 pnpm test
 pnpm contracts:build
+pnpm contracts:test
 ```
 
 The contract build must produce the RCR Jetton artifacts before any deployment work proceeds. Preserve the exact commit SHA and build logs used for a testnet deployment.
