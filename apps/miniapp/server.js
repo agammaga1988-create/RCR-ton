@@ -61,7 +61,11 @@ const server = createServer(async (req, res) => {
 });
 server.headersTimeout = 10_000;
 server.requestTimeout = 15_000;
-server.listen(port, host);
+server.listen(port, host, () => {
+  const boundAddress = server.address();
+  const boundPort = boundAddress && typeof boundAddress === "object" ? boundAddress.port : port;
+  if (process.env.RCR_TEST_SERVER_PORT === "1") process.stdout.write(`RCR Mini App listening on http://${host}:${boundPort}\\n`);
+});
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.on(signal, () => server.close(() => process.exit(0)));
 }
