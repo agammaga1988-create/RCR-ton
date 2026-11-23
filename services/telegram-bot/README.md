@@ -1,20 +1,32 @@
 # RCR Telegram Bot
 
-A minimal Telegram Bot API long-polling service. It responds to /start with an HTTPS Mini App launch button and /help with wallet safety guidance.
+Official Telegram entry point for the RCR on TON testnet Mini App.
 
-## Railway
+## Included bot experience
 
-Deploy this folder as a service from the repository root:
+- `/start` and `/menu`: welcome screen with interactive feature menu.
+- `/app`: opens the Telegram Mini App using a Telegram Web App button.
+- `/earn`: explains the 24-hour session flow and its current limitations.
+- `/status`: checks the public Mini App health endpoint.
+- `/wallet`: directs wallet connection to TON Connect inside the Mini App.
+- `/rules`: displays anti-phishing and non-custodial safety rules.
+- `/help`: lists all commands.
+- Inline callback menu, Telegram command registration, bot profile descriptions, and persistent Mini App menu button.
 
-- Install/build: `corepack enable && pnpm install --frozen-lockfile`
+The bot does not fabricate balances, calculate rewards, or promise payouts. Session eligibility and state remain server-authoritative in the API. Token claims and withdrawals are disabled until reward accounting, contracts, security review, and owner approval are complete.
+
+## Railway configuration
+
+- Root directory: repository root `/`
+- Build: `corepack enable && pnpm install --frozen-lockfile`
 - Start: `pnpm --filter @rcr/telegram-bot start`
-- Required secret: `TELEGRAM_BOT_TOKEN` (BotFather token; Railway secret variable only)
-- Required public variable: `RCR_MINIAPP_URL=https://rcr-miniapp-testnet.up.railway.app`
+- Secret: `TELEGRAM_BOT_TOKEN` (token from BotFather; keep it in Railway secret variables only)
+- Public variable: `RCR_MINIAPP_URL` (public HTTPS URL of the RCR Mini App)
 
-Only one polling instance may run for a bot token. Do not run a second poller or configure a webhook at the same time. The service deletes an existing webhook before polling; do not use it if another production webhook is already active.
+Only one polling instance may run for a bot token. The service removes an existing webhook before long polling. Do not run a second poller or configure a webhook at the same time.
 
-## Create bot
+## Bot creation and ownership
 
-In Telegram open @BotFather, run /newbot, choose the display name and unique username, and store the token directly in Railway's encrypted variable editor. Never commit or paste the token into chat. Configure the Mini App domain in BotFather to match the public HTTPS domain.
+The Telegram bot identity itself must be created by its owner with @BotFather using `/newbot`. A Telegram Bot API token cannot create a bot identity. Once that identity exists, placing its token in Railway lets this service register commands, set the profile text, install the Mini App menu button, and respond to users.
 
-The bot only launches the Mini App. All identity validation remains server-side in the API using Telegram initData and the bot token. It does not custody funds, request seed phrases, sign transactions, or enable rewards/withdrawals.
+Never request or store seed phrases or private keys. Configure the Mini App domain with @BotFather to match the HTTPS domain.
