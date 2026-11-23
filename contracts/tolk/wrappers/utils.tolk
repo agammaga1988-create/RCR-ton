@@ -2,8 +2,54 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "JettonMinter.gen"
 import "JettonWallet.gen"
+import "MiningIssuer.gen"
 import "../src/messages"
 import "../src/storage"
+
+
+fun MiningIssuer.sendDeploy(self, from: address, params: SendParams): SendResultList {
+    val outMessage = createMessage({
+        bounce: false,
+        value: params.value,
+        dest: { workchain: 0, stateInit: self.stateInit! },
+        body: TopUpTons {},
+    });
+    return net.send(from, outMessage);
+}
+
+fun MiningIssuer.sendRegisterClaim(
+    self,
+    from: address,
+    claimId: uint64,
+    recipient: address,
+    amount: coins,
+    tonAmount: coins,
+    attachedValue: coins,
+): SendResultList {
+    val outMessage = createMessage({
+        bounce: false,
+        value: attachedValue,
+        dest: self.address,
+        body: RegisterMiningClaim { claimId, recipient, amount, tonAmount },
+    });
+    return net.send(from, outMessage);
+}
+
+fun MiningIssuer.sendRetryClaim(
+    self,
+    from: address,
+    claimId: uint64,
+    tonAmount: coins,
+    attachedValue: coins,
+): SendResultList {
+    val outMessage = createMessage({
+        bounce: false,
+        value: attachedValue,
+        dest: self.address,
+        body: RetryMiningClaim { claimId, tonAmount },
+    });
+    return net.send(from, outMessage);
+}
 
 fun JettonMinter.sendDiscovery(
     self,
