@@ -26,7 +26,7 @@
 - [x] Enforce separate 600,000,000 public-issuer and 400,000,000 mining-issuer lifetime caps in the minter; mining issuer is configured once by admin.
 - [x] Separate 400,000,000 RCR MiningIssuer with unique claim IDs, verified master callbacks, retryable bounce handling, and pause-by-default.
 - [ ] Approve deterministic reward formula, eligibility/anti-abuse policy, and backend claim calculation; the on-chain issuer deliberately accepts only operator-authorized amounts.
-- [x] Testnet deployment script deploys Jetton + MiningIssuer, zero genesis supply, fixed 9 decimals, split lifetime caps, and one-time mining issuer authorization.
+- [x] Testnet deployment script deploys Jetton + MiningIssuer, zero genesis supply, proposed 9 decimals pending owner confirmation, split lifetime caps, and one-time mining issuer authorization.
 - [x] Acton transaction-level suite (85 tests), RCR lifetime/public/mining cap regressions, replay protection, settlement callbacks, and safe claim retries.
 - [ ] Additional property/fuzz tests and independent review of reward formula/backend eligibility.
 - [ ] Testnet deployment, indexer reconciliation, and replay-protected claim flow.
