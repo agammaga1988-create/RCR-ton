@@ -4,10 +4,10 @@ import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "@acton/types/transaction"
 import "test-utils"
-import "../contracts/errors"
-import "../contracts/messages"
-import "../contracts/sharding"
-import "../contracts/storage"
+import "../src/errors"
+import "../src/messages"
+import "../src/sharding"
+import "../src/storage"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
@@ -33,6 +33,7 @@ get fun `test admin: deploy should create minter without bounce`() {
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
+        maxSupply: grams("1000000000"),
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
         nextAdminAddress: null,
@@ -261,6 +262,7 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
     val (minter, deployer, notDeployer) = setupTest();
     val newData = MinterStorage {
         totalSupply: grams("99"),
+        maxSupply: grams("1000000000"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
         metadata: buildTestMetadata("meta-upgrade"),
@@ -283,6 +285,7 @@ get fun `test admin: admin should be able to upgrade minter code and data`() {
     val upgradedUri = "https://upgraded.meta.example/jetton.json";
     val newData = MinterStorage {
         totalSupply: upgradedSupply,
+        maxSupply: grams("1000000000"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
         metadata: buildTestMetadata(upgradedUri),
