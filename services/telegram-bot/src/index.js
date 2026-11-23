@@ -1,5 +1,6 @@
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const miniAppUrl = process.env.RCR_MINIAPP_URL;
+const rawToken = process.env.TELEGRAM_BOT_TOKEN ?? "";
+const token = rawToken.trim().replace(/^https:\/\/api\.telegram\.org\/bot/i, "").replace(/^bot(?=\d+:)/i, "").trim();
+const miniAppUrl = process.env.RCR_MINIAPP_URL?.trim();
 const api = token ? "https://api.telegram.org/bot" + token : "";
 if (!token || token.length < 20) throw new Error("TELEGRAM_BOT_TOKEN is required");
 if (!miniAppUrl || !miniAppUrl.startsWith("https://")) throw new Error("RCR_MINIAPP_URL must be a public HTTPS URL");
