@@ -63,3 +63,37 @@ test("PostgreSQL restores the active session for its verified Telegram identity"
   assert.equal(restored.userId, telegramUserId);
   assert.equal(restored.endsAt, created.endsAt);
 });
+
+
+test("reward accounting migration installs a disabled policy and rejects invalid ledger facts", { skip: !enabled }, async () => {
+  const pool = getPool();
+  const policy = await pool.query(
+    "SELECT enabled, formula_version, decimals, reward_rate_units, mining_cap_units FROM reward_program_config WHERE singleton = TRUE"
+  );
+  assert.equal(policy.rowCount, 1);
+  assert.equal(policy.rows[0].enabled, false);
+  assert.equal(policy.rows[0].formula_version, null);
+  assert.equal(policy.rows[0].decimals, null);
+  assert.equal(policy.rows[0].reward_rate_units, null);
+  assert.equal(policy.rows[0].mining_cap_units, null);
+
+  const telegramUserId = testUserId();
+  const session = await createEarningSession(telegramUserId);
+  const user = await pool.query("SELECT id FROM app_users WHERE telegram_user_id = $1", [telegramUserId]);
+  await assert.rejects(
+    pool.query(
+      `INSERT INTO reward_ledger (id, session_id, user_id, formula_version, amount_units)
+       VALUES (gen_random_uuid(), $1, $2, 1, 0)`,
+      [session.id, user.rows[0].id]
+    ),
+    error => error.code === "23514"
+  );
+  await assert.rejects(
+    pool.query(
+      `INSERT INTO reward_ledger (id, session_id, user_id, formula_version, amount_units)
+       VALUES (gen_random_uuid(), $1, $2, 1, 1)`,
+      [session.id, user.rows[0].id]
+    ),
+    /reward_formula_version/
+  );
+});
