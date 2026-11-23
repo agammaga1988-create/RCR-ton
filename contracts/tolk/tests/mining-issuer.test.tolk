@@ -86,6 +86,8 @@ get fun `test mining issuer: failed mint becomes retryable and can be retried sa
     val (minter, deployer, recipient) = setupTest(0, rcrMaxSupplyBaseUnits(9));
     val issuer = deployMiningIssuer(minter, deployer, deployer.address);
 
+    val resumed = issuer.sendResumeMining(deployer.address);
+    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
     val first = issuer.sendRegisterClaim(deployer.address, 17, recipient.address, grams("2"), grams("0.3"), grams("0.5"));
     expect(first).toHaveSuccessfulTx<RegisterMiningClaim>({ from: deployer.address, to: issuer.address });
     expect(issuer.getMiningIssuerData().totalPending).toEqual(0);
@@ -93,8 +95,6 @@ get fun `test mining issuer: failed mint becomes retryable and can be retried sa
 
     val configured = minter.sendConfigureMiningIssuer(deployer.address, issuer.address);
     expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
-    val resumed = issuer.sendResumeMining(deployer.address);
-    expect(resumed).toHaveSuccessfulTx<ResumeMining>({ from: deployer.address, to: issuer.address });
     val retry = issuer.sendRetryClaim(deployer.address, 17, grams("0.3"), grams("0.5"));
     expect(retry).toHaveSuccessfulTx<RetryMiningClaim>({ from: deployer.address, to: issuer.address });
     expect(issuer.getMiningIssuerData().totalIssued).toEqual(grams("2"));
