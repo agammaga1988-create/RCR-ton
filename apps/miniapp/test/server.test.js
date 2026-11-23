@@ -44,8 +44,9 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
     const appScript = await fetch(base + "/app.js");
     assert.equal(appScript.status, 200);
-    assert.match(await appScript.text(), /restoreSession/);
-    assert.match(await appScript.text(), /setConnectionNetwork\("-3"\)/);
+    const appScriptText = await appScript.text();
+    assert.match(appScriptText, /restoreSession/);
+    assert.match(appScriptText, /setConnectionNetwork\("-3"\)/);
     const page = await fetch(base + "/");
     assert.equal(page.status, 200);
     const pageText = await page.text();
