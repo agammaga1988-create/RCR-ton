@@ -59,3 +59,23 @@ struct (0x00) OnchainMetadataReply {
 struct (0x00) SnakeDataReply {
     string: string
 }
+
+struct MiningClaimRecord {
+    recipient: address
+    amount: coins
+    status: uint8
+}
+
+struct MiningIssuerExtra {
+    totalIssued: coins
+    totalPending: coins
+    paused: bool
+    claims: map<uint64, MiningClaimRecord>
+}
+
+struct MiningIssuerStorage {
+    adminAddress: address
+    operatorAddress: address
+    minterAddress: address
+    extra: cell
+}
