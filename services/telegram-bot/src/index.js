@@ -155,10 +155,24 @@ async function poll() {
   }
 }
 
-const bot = await telegram("getMe");
+async function telegramWithRetry(method, payload = {}) {
+  let delayMs = 2000;
+  while (!stopping) {
+    try { return await telegram(method, payload); }
+    catch (error) {
+      const waitMs = error?.retryAfter ? error.retryAfter * 1000 : delayMs;
+      process.stderr.write("Telegram API " + method + " temporarily unavailable; retrying in " + Math.ceil(waitMs / 1000) + "s (" + String(error?.message ?? "error").slice(0, 160) + ")\\n");
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+      delayMs = Math.min(delayMs * 2, 60000);
+    }
+  }
+  throw new Error("Bot shutting down");
+}
+
+const bot = await telegramWithRetry("getMe");
 process.stdout.write("Authenticated Telegram bot @" + bot.username + "\n");
-await telegram("deleteWebhook", { drop_pending_updates: false });
-await telegram("setMyCommands", { commands: [
+await telegramWithRetry("deleteWebhook", { drop_pending_updates: false });
+await telegramWithRetry("setMyCommands", { commands: [
   { command: "start", description: "Open the RCR main menu" },
   { command: "app", description: "Launch the RCR Mini App" },
   { command: "earn", description: "Learn how 24-hour sessions work" },
@@ -167,13 +181,13 @@ await telegram("setMyCommands", { commands: [
   { command: "rules", description: "Security rules and warnings" },
   { command: "help", description: "Show all bot commands" },
 ] });
-await telegram("setMyDescription", {
+await telegramWithRetry("setMyDescription", {
   description: "Official RCR on TON assistant. Launch the Mini App, check project availability, learn about 24-hour sessions, and get wallet safety guidance. Testnet stage; claims and withdrawals are disabled.",
 });
-await telegram("setMyShortDescription", {
+await telegramWithRetry("setMyShortDescription", {
   short_description: "RCR on TON — Mini App, sessions and wallet safety.",
 });
-await telegram("setChatMenuButton", {
+await telegramWithRetry("setChatMenuButton", {
   menu_button: { type: "web_app", text: "Open RCR", web_app: { url: miniAppUrl } },
 });
 process.stdout.write("RCR Telegram bot ready. Commands and Mini App menu configured.\n");
