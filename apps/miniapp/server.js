@@ -5,8 +5,14 @@ import { dirname, join } from "node:path";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
-const host = process.env.HOST || "127.0.0.1";
+const host = process.env.HOST || "0.0.0.0";
 const apiBase = process.env.RCR_API_BASE || "";
+let apiOrigin = "'self'";
+if (apiBase) {
+  const parsedApiBase = new URL(apiBase);
+  if (parsedApiBase.protocol !== "https:") throw new Error("RCR_API_BASE must use HTTPS");
+  apiOrigin = parsedApiBase.origin;
+}
 
 function send(res, status, type, body) {
   res.writeHead(status, {
@@ -14,7 +20,7 @@ function send(res, status, type, body) {
     "x-content-type-options": "nosniff",
     "referrer-policy": "no-referrer",
     "cache-control": "no-store",
-    "content-security-policy": "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self' https:; img-src 'self' data:; frame-ancestors https://web.telegram.org https://*.telegram.org",
+    "content-security-policy": "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; connect-src 'self' ${apiOrigin}; img-src 'self' data:; frame-ancestors https://web.telegram.org https://*.telegram.org",
   });
   res.end(body);
 }
