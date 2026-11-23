@@ -102,7 +102,7 @@ The Mainnet flow is split into two independently signed phases because the deplo
 - refuses to proceed unless `RCR_MAINNET_DEPLOY_CONFIRMATION=314159`;
 - connects through TON Connect and checks that the connected wallet exactly matches the owner's supplied deployment address;
 - uses the separately supplied admin address as Jetton admin/public issuer;
-- requires a non-empty `JETTON_IMAGE` value;
+- requires a `JETTON_IMAGE` value and a separate `RCR_MAINNET_METADATA_CONFIRMED=271828` readiness confirmation;
 - fixes the network to Mainnet, precision to 9 decimals and genesis supply to zero;
 - deploys the Jetton master and MiningIssuer, which starts paused;
 - prints both deployed contract addresses. It intentionally does not authorize the issuer yet.
@@ -120,6 +120,7 @@ Use the local Acton CLI from `contracts/tolk` only after local emulation and a t
 cd contracts/tolk
 export RCR_MAINNET_DEPLOY_CONFIRMATION=314159
 export JETTON_IMAGE="https://<owner-controlled-host>/rcr-icon.png"
+export RCR_MAINNET_METADATA_CONFIRMED=271828
 acton run deploy-rcr-mainnet
 ```
 
