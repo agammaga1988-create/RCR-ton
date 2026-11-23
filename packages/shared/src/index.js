@@ -12,7 +12,7 @@ export const SessionStatus = Object.freeze({
   CLAIMED: "claimed",
 });
 
-export function calculateSessionReward({ baseReward, multiplierBps = 10_000, remainingAllocation }) {
+export function calculateSessionReward({ baseReward, multiplierBps = 10_000n, remainingAllocation }) {
   for (const [name, value] of Object.entries({ baseReward, multiplierBps, remainingAllocation })) {
     if (typeof value !== "bigint" || value < 0n) throw new TypeError(`${name} must be a non-negative bigint`);
   }
