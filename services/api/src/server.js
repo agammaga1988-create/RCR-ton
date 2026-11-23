@@ -157,7 +157,7 @@ async function handleCurrentSession(req, res) {
     if (authErrors.has(error.message)) return send(res, 401, { error: error.message });
     if (error.statusCode) return send(res, error.statusCode, { error: error.message });
     if (error instanceof SyntaxError) return send(res, 400, { error: "invalid_json" });
-    process.stderr.write("RCR API current-session request failed\\n");
+    process.stderr.write("RCR API current-session request failed\n");
     return send(res, 500, { error: "internal_server_error" });
   }
 }
