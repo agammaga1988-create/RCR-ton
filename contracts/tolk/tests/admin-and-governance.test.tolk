@@ -368,7 +368,7 @@ get fun `test issuer: public issuer cannot exceed 600 million RCR`() {
 
 get fun `test issuer: configured mining issuer is capped at 400 million RCR`() {
     val (minter, deployer, miningIssuer) = setupTest(0, rcrMaxSupplyBaseUnits(9));
-    val configured = minter.sendSetMiningIssuer(deployer.address, miningIssuer.address);
+    val configured = minter.sendConfigureMiningIssuer(deployer.address, miningIssuer.address);
     expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
     expect(minter.getMiningIssuerAddress()).toEqual(miningIssuer.address);
     val cap = rcrMiningIssuerCapBaseUnits();
@@ -382,10 +382,10 @@ get fun `test issuer: configured mining issuer is capped at 400 million RCR`() {
 
 get fun `test issuer: mining issuer is one-time and distinct from public issuer`() {
     val (minter, deployer, notDeployer) = setupTest();
-    val same = minter.sendSetMiningIssuer(deployer.address, deployer.address);
+    val same = minter.sendConfigureMiningIssuer(deployer.address, deployer.address);
     expect(same).toHaveFailedTx<SetMiningIssuer>({ from: deployer.address, to: minter.address, exitCode: ERROR_INVALID_ISSUER });
-    val first = minter.sendSetMiningIssuer(deployer.address, notDeployer.address);
+    val first = minter.sendConfigureMiningIssuer(deployer.address, notDeployer.address);
     expect(first).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
-    val second = minter.sendSetMiningIssuer(deployer.address, testing.treasury("other-mining-issuer").address);
+    val second = minter.sendConfigureMiningIssuer(deployer.address, testing.treasury("other-mining-issuer").address);
     expect(second).toHaveFailedTx<SetMiningIssuer>({ from: deployer.address, to: minter.address, exitCode: ERROR_ISSUER_ALREADY_SET });
 }
