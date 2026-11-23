@@ -1,9 +1,11 @@
 import "@acton/emulation/scripts"
+import "@acton/emulation/network"
 import "@acton/io"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
 import "utils/common"
 import "../src/tokenomics"
+import "../wrappers/utils"
 
 fun main() {
     val deployer = promptJettonWallet("JETTON_DEPLOYER", "Select Jetton Deployer");
@@ -34,7 +36,8 @@ fun main() {
     val configured = minter.sendConfigureMiningIssuer(adminWallet.address, miningIssuer.address);
     configured.waitForFirstTransaction();
 
-    assert (minter.getMiningIssuerAddress() == miningIssuer.address) throw 1005;
+    val configuredMiningIssuer = minter.getMiningIssuerAddress();
+    assert (configuredMiningIssuer != null && configuredMiningIssuer! == miningIssuer.address) throw 1005;
     assert (minter.getPublicIssuerAddress() == adminWallet.address) throw 1007;
     assert (miningIssuer.getMiningIssuerData().paused) throw 1008;
     println("RCR MINING_ISSUER_ADDRESS={}", miningIssuer.address);
