@@ -85,6 +85,30 @@ export async function createEarningSession(telegramUserId, now = new Date()) {
   }
 }
 
+
+export async function getCurrentEarningSession(telegramUserId, now = new Date()) {
+  const result = await getPool().query(
+    `SELECT s.id, s.status, s.starts_at, s.ends_at
+     FROM earning_sessions s
+     JOIN app_users u ON u.id = s.user_id
+     WHERE u.telegram_user_id = $1 AND s.status = 'active' AND s.ends_at > $2
+     ORDER BY s.starts_at DESC
+     LIMIT 1`,
+    [telegramUserId, now]
+  );
+  if (!result.rowCount) return null;
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    userId: String(telegramUserId),
+    status: row.status,
+    startsAt: Math.floor(new Date(row.starts_at).getTime() / 1000),
+    endsAt: Math.floor(new Date(row.ends_at).getTime() / 1000),
+    reward: null,
+    claimedAt: null,
+  };
+}
+
 export async function closePool() {
   if (pool) {
     const current = pool;
