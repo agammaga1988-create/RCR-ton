@@ -41,3 +41,9 @@ The API service does not currently have `TELEGRAM_BOT_TOKEN`. Add it only throug
 Hosting the API and Mini App does not deploy the RCR Jetton or MiningIssuer contracts. The current token contract deployment scripts are Mainnet-specific and require the owner deployment wallet to sign locally through Acton. They enforce zero genesis supply, 9 decimals, a 1,000,000,000 RCR maximum supply, and a paused MiningIssuer. The public wallet addresses in the deployment scripts are configuration only; they do not grant signing capability.
 
 Do not activate rewards, claims, payouts, withdrawals, or trading based only on successful hosting. Those flows remain disabled until the contract deployment, wallet authorization, audited reward configuration, and release checks are complete. No seed phrase or private key is needed by the hosted application.
+
+## Telegram bot launcher
+
+A dedicated `rcr-telegram-bot` Railway service has been created from this repository. It runs `pnpm --filter @rcr/telegram-bot start`, uses the repository root for pnpm workspace installation, and has `RCR_MINIAPP_URL=https://rcr-miniapp-testnet.up.railway.app`. It intentionally has no bot token yet and therefore must not be considered active. Create the bot with @BotFather, configure the Mini App domain, then add the resulting `TELEGRAM_BOT_TOKEN` only in this service's encrypted Railway variables. After that, redeploy and verify the service logs report the bot started. The bot uses long polling; only one instance may poll this token, and no webhook should be active at the same time.
+
+The bot launcher currently points to the hosted Testnet Mini App. Mainnet wallet/network settings and token actions remain disabled pending audited contract deployment and release approval.
