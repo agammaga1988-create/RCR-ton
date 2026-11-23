@@ -116,6 +116,7 @@ fun promptJettonMinterStorage(admin: address): MinterStorage {
             miningIssuerAddress: null,
             publicIssued: 0,
             miningIssued: 0,
+            pendingMints: [],
         }.toCell(),
         adminAddress: admin,
         nextAdminAddress: null,
