@@ -33,6 +33,6 @@ pnpm check
 pnpm contracts:build
 ```
 
-The primary Jetton implementation is Tolk/Acton Jetton v2.1 under `contracts/tolk`. with a 9-decimal lifetime issuance cap, burn-resistant mint accounting, and privileged code upgrades disabled. CI builds it and runs the upstream transaction-level Jetton suite plus RCR cap regression. The older Tact source under `contracts/src` is retained as a non-deployable migration reference. The separate rewards vault, production reward claims, wallet configuration, and testnet deployment are not complete yet.
+The primary Jetton implementation is Tolk/Acton Jetton v2.1 under `contracts/tolk`. with a 9-decimal lifetime issuance cap, burn-resistant mint accounting, and privileged code upgrades disabled. CI builds it and runs the upstream transaction-level Jetton suite plus RCR cap regression. The older Tact source under `contracts/src` is retained as a non-deployable migration reference. A capped MiningIssuer contract and its sandbox tests are implemented; it is deployed paused. The reward formula, eligibility/anti-abuse policy, backend claim registration, TON Connect UI, and actual testnet deployment still require completion and owner approval.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) before implementing or enabling production functionality.
