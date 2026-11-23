@@ -2,6 +2,7 @@ import "@acton/emulation/scripts"
 import "@acton/io"
 import "@wrappers/JettonMinter.gen"
 import "@wrappers/MiningIssuer.gen"
+import "sharding"
 import "utils/common"
 
 fun main() {
@@ -12,6 +13,9 @@ fun main() {
         "Enter Mining Issuer Operator Address",
         adminWallet.address,
     );
+
+    assert (adminWallet.address.getWorkchain() == MY_WORKCHAIN) throw 1006;
+    assert (operatorAddress.getWorkchain() == MY_WORKCHAIN) throw 1006;
 
     val minterStorage = promptJettonMinterStorage(adminWallet.address);
     assert (minterStorage.totalSupply == 0) throw 1003;
@@ -31,6 +35,8 @@ fun main() {
     configured.waitForFirstTransaction();
 
     assert (minter.getMiningIssuerAddress() == miningIssuer.address) throw 1005;
+    assert (minter.getPublicIssuerAddress() == adminWallet.address) throw 1007;
+    assert (miningIssuer.getMiningIssuerData().paused) throw 1008;
     println("RCR MINING_ISSUER_ADDRESS={}", miningIssuer.address);
     println("RCR MINING_OPERATOR_ADDRESS={}", operatorAddress);
     println("RCR MINING_ISSUER_PAUSED={}", miningIssuer.getMiningIssuerData().paused);
