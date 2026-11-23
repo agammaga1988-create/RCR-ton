@@ -20,6 +20,16 @@ The contract build must produce the RCR Jetton artifacts before any deployment w
 
 The frontend is a static Mini App under `apps/miniapp`. Deploy only after confirming the hosting adapter/build output and that `/app.js` and `/config.js` are served with the intended security headers. Configure a public HTTPS origin. Never put Telegram bot tokens, wallet secrets, or database credentials in frontend build variables.
 
+## 2A. Cloudflare Pages configuration
+
+For the static Mini App, set the Cloudflare Pages project root directory to `apps/miniapp`, leave the build command empty, and use `.` as the build output directory. The `functions/[[path]].js` catch-all is constrained by `_routes.json` to `/config.js`, `/tonconnect-manifest.json`, and `/rcr-icon.png`; `_headers` applies the Mini App CSP and browser security headers.
+
+Set these Pages environment variables for production:
+- `RCR_PUBLIC_URL` = the exact public HTTPS origin, e.g. `https://rcr.example` (no path).
+- `RCR_API_BASE` = the API's public HTTPS origin, e.g. `https://api.rcr.example`.
+
+The API service must set `RCR_PUBLIC_URL` to the exact same Mini App origin for strict CORS. Verify `/config.js`, `/tonconnect-manifest.json`, and `/rcr-icon.png` after deployment. The manifest must be publicly accessible over HTTPS, without auth or proxy challenges, and its icon must be a 180×180 PNG.
+
 ## 3. API hosting
 
 Deploy `services/api` as a Node.js 22 service with:
