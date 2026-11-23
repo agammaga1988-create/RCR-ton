@@ -39,15 +39,24 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal(health.headers.get("x-content-type-options"), "nosniff");
     const config = await fetch(base + "/config.js");
     assert.match(await config.text(), /apiBase: ""/);
+    assert.match(await config.text(), /tonConnectManifestUrl: ""/);
     assert.match(config.headers.get("content-security-policy"), /frame-ancestors https:\/\/web\.telegram\.org/);
     const appScript = await fetch(base + "/app.js");
     assert.equal(appScript.status, 200);
     assert.match(await appScript.text(), /restoreSession/);
+    assert.match(await appScript.text(), /setConnectionNetwork\("-3"\)/);
     const page = await fetch(base + "/");
     assert.equal(page.status, 200);
     const pageText = await page.text();
     assert.ok(pageText.includes('<script src="/app.js" defer></script>'));
+    assert.ok(pageText.includes("@tonconnect/ui@5.0.3"));
     assert.match(pageText, /24-hour earning sessions/);
+    assert.equal((await fetch(base + "/tonconnect-manifest.json")).status, 503);
+    const icon = await fetch(base + "/rcr-icon.png");
+    assert.equal(icon.status, 200);
+    assert.match(icon.headers.get("content-type"), /image\\/png/);
+    const iconBytes = Buffer.from(await icon.arrayBuffer());
+    assert.deepEqual([...iconBytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
   } finally { child.kill("SIGTERM"); }
 });
 
@@ -57,5 +66,22 @@ test("Mini App rejects unsupported methods and unknown paths", async () => {
     const base = `http://127.0.0.1:${port}`;
     assert.equal((await fetch(base + "/", { method: "POST" })).status, 405);
     assert.equal((await fetch(base + "/../../.env")).status, 404);
+  } finally { child.kill("SIGTERM"); }
+});
+
+test("Mini App publishes a valid TON Connect manifest only for configured HTTPS origin", async () => {
+  const { child, port } = await startMiniApp({ RCR_PUBLIC_URL: "https://rcr.example" });
+  try {
+    const base = "http://127.0.0.1:" + port;
+    const manifestResponse = await fetch(base + "/tonconnect-manifest.json");
+    assert.equal(manifestResponse.status, 200);
+    assert.equal(manifestResponse.headers.get("access-control-allow-origin"), "*");
+    assert.deepEqual(await manifestResponse.json(), {
+      url: "https://rcr.example",
+      name: "RCR TON Rewards",
+      iconUrl: "https://rcr.example/rcr-icon.png",
+    });
+    const config = await (await fetch(base + "/config.js")).text();
+    assert.ok(config.includes("https://rcr.example/tonconnect-manifest.json"));
   } finally { child.kill("SIGTERM"); }
 });
