@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "migrate": "node src/migrate.js"
   },
   "dependencies": {
-    "@rcr/shared": "workspace:*"
+    "@rcr/shared": "workspace:*",
+    "pg": "^8.13.1"
   }
 }
