@@ -108,3 +108,27 @@ fun ForwardPayloadRemainder.checkIsCorrectTlbEither(self) {
         mutableCopy.assertEnd();
     }
 }
+
+struct (0x52435201) MintFailureNotification {
+    queryId: uint64
+}
+
+struct (0x52435202) RegisterMiningClaim {
+    claimId: uint64
+    recipient: address
+    amount: coins
+    tonAmount: coins
+}
+
+struct (0x52435203) RetryMiningClaim {
+    claimId: uint64
+    tonAmount: coins
+}
+
+struct (0x52435204) ChangeMiningOperator {
+    newOperatorAddress: address
+}
+
+struct (0x52435205) PauseMining {}
+
+struct (0x52435206) ResumeMining {}
