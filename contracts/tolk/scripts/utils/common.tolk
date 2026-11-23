@@ -116,6 +116,7 @@ fun rcrMaxSupplyBaseUnits(decimals: int): coins {
 fun promptJettonMinterStorage(admin: address): MinterStorage {
     val metadata = promptJettonMetadata(JETTON_DEFAULT_DESCRIPTION);
     val decimals = parseInt(metadata.decimals);
+    assert (format("{}", decimals) == metadata.decimals) throw 1002;
     val maxSupply = rcrMaxSupplyBaseUnits(decimals);
     return {
         totalSupply: 0,
