@@ -21,10 +21,6 @@ src = "src/JettonWallet.tolk"
 [contracts.MiningIssuer]
 src = "src/MiningIssuer.tolk"
 
-[[contracts.MiningIssuer.depends]]
-name = "JettonWallet"
-kind = "embed_code"
-function = "jettonWalletCompiledCode"
 
 [import-mappings]
 acton = ".acton"
