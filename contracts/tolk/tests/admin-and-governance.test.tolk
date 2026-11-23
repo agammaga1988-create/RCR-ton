@@ -7,6 +7,7 @@ import "test-utils"
 import "../src/errors"
 import "../src/messages"
 import "../src/sharding"
+import "../src/tokenomics"
 import "../src/storage"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
@@ -350,4 +351,39 @@ get fun `test admin: burning does not replenish lifetime mint cap`() {
     });
     expect(minter.getTotalSupply()).toEqual(grams("22"));
     expect(minter.getCumulativeMinted()).toEqual(grams("25"));
+}
+
+get fun `test issuer: public issuer cannot exceed 600 million RCR`() {
+    val (minter, deployer, _) = setupTest(0, rcrMaxSupplyBaseUnits(9));
+    val cap = rcrPublicIssuanceCapBaseUnits();
+    val mint = minter.sendMint(deployer.address, deployer.address, cap, grams("0.05"), grams("0.3"));
+    expect(mint).toHaveSuccessfulTx<MintNewJettons>({ from: deployer.address, to: minter.address });
+    expect(minter.getPublicIssued()).toEqual(cap);
+    val over = minter.sendMint(deployer.address, deployer.address, 1, grams("0.05"), grams("0.3"));
+    expect(over).toHaveFailedTx<MintNewJettons>({ from: deployer.address, to: minter.address, exitCode: ERROR_ISSUER_CAP });
+    expect(minter.getPublicIssued()).toEqual(cap);
+}
+
+get fun `test issuer: configured mining issuer is capped at 400 million RCR`() {
+    val (minter, deployer, miningIssuer) = setupTest(0, rcrMaxSupplyBaseUnits(9));
+    val configured = minter.sendSetMiningIssuer(deployer.address, miningIssuer.address);
+    expect(configured).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
+    expect(minter.getMiningIssuerAddress()).toEqual(miningIssuer.address);
+    val cap = rcrMiningIssuerCapBaseUnits();
+    val mint = minter.sendMint(miningIssuer.address, miningIssuer.address, cap, grams("0.05"), grams("0.3"));
+    expect(mint).toHaveSuccessfulTx<MintNewJettons>({ from: miningIssuer.address, to: minter.address });
+    expect(minter.getMiningIssued()).toEqual(cap);
+    val over = minter.sendMint(miningIssuer.address, miningIssuer.address, 1, grams("0.05"), grams("0.3"));
+    expect(over).toHaveFailedTx<MintNewJettons>({ from: miningIssuer.address, to: minter.address, exitCode: ERROR_ISSUER_CAP });
+    expect(minter.getMiningIssued()).toEqual(cap);
+}
+
+get fun `test issuer: mining issuer is one-time and distinct from public issuer`() {
+    val (minter, deployer, notDeployer) = setupTest();
+    val same = minter.sendSetMiningIssuer(deployer.address, deployer.address);
+    expect(same).toHaveFailedTx<SetMiningIssuer>({ from: deployer.address, to: minter.address, exitCode: ERROR_INVALID_ISSUER });
+    val first = minter.sendSetMiningIssuer(deployer.address, notDeployer.address);
+    expect(first).toHaveSuccessfulTx<SetMiningIssuer>({ from: deployer.address, to: minter.address });
+    val second = minter.sendSetMiningIssuer(deployer.address, testing.treasury("other-mining-issuer").address);
+    expect(second).toHaveFailedTx<SetMiningIssuer>({ from: deployer.address, to: minter.address, exitCode: ERROR_ISSUER_ALREADY_SET });
 }
