@@ -25,7 +25,7 @@ This is an engineering scaffold, not a deployed token or audited financial produ
 
 ## Development
 
-Requirements: Node.js 22+, pnpm 9+.
+Requirements: Node.js 22+, pnpm 9+, Docker (for local PostgreSQL CI-style tests), and [Acton 1.2.1](https://ton-blockchain.github.io/acton/docs/installation) for Tolk contracts.
 
 ```bash
 pnpm install
@@ -33,6 +33,6 @@ pnpm check
 pnpm contracts:build
 ```
 
-The primary Jetton implementation is Tolk/Acton v2.1 under `contracts/tolk`, with an RCR maximum-supply guard and privileged code upgrades disabled. CI builds it and runs the upstream transaction-level Jetton suite plus RCR cap regression. The older Tact source under `contracts/src` is retained as a non-deployable migration reference. The separate rewards vault, production reward claims, wallet configuration, and testnet deployment are not complete yet.
+The primary Jetton implementation is Tolk/Acton Jetton v2.1 under `contracts/tolk`. with an RCR maximum-supply guard and privileged code upgrades disabled. CI builds it and runs the upstream transaction-level Jetton suite plus RCR cap regression. The older Tact source under `contracts/src` is retained as a non-deployable migration reference. The separate rewards vault, production reward claims, wallet configuration, and testnet deployment are not complete yet.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) before implementing or enabling production functionality.
