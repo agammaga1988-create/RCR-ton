@@ -5,6 +5,8 @@
   const timer = document.getElementById("timer");
   const state = document.getElementById("session-state");
   const copy = document.getElementById("session-copy");
+  const walletStatus = document.getElementById("wallet-status");
+  const manifestUrl = window.RCR_CONFIG?.tonConnectManifestUrl || "";
   const apiBase = window.RCR_CONFIG?.apiBase || "";
   let activeSession = null;
   let ticker = null;
@@ -68,6 +70,33 @@
       button.textContent = "Start 24-hour session";
     }
   }
+
+  function initWallet() {
+    if (!manifestUrl || !manifestUrl.startsWith("https://")) {
+      if (walletStatus) walletStatus.textContent = "Wallet connection is disabled until RCR_PUBLIC_URL is configured on the HTTPS host.";
+      return;
+    }
+    const TonConnectUI = window.TON_CONNECT_UI?.TonConnectUI;
+    if (!TonConnectUI) {
+      if (walletStatus) walletStatus.textContent = "TON Connect UI did not load. Refresh and try again.";
+      return;
+    }
+    try {
+      const tonConnectUI = new TonConnectUI({ manifestUrl, buttonRootId: "ton-connect" });
+      tonConnectUI.setConnectionNetwork("-3");
+      tonConnectUI.onStatusChange(wallet => {
+        const address = wallet?.account?.address;
+        if (address) {
+          walletStatus.textContent = "Connected to TON testnet: " + address.slice(0, 6) + "…" + address.slice(-6) + ". No transactions or withdrawals are enabled.";
+        } else {
+          walletStatus.textContent = "No wallet connected. Choose a TON testnet wallet.";
+        }
+      });
+    } catch {
+      walletStatus.textContent = "Wallet connection could not be initialized. Check the HTTPS manifest.";
+    }
+  }
+
   button.addEventListener("click", start);
   async function restoreSession() {
     if (!tg?.initData) {
@@ -101,5 +130,6 @@
       message(error.message || "Could not reach the session service.", "error");
     }
   }
+  initWallet();
   restoreSession();
 })();
