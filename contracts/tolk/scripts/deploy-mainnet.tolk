@@ -13,6 +13,7 @@ import "@wrappers/utils"
 const RCR_DEPLOYER = "UQDvqZ56PiYwhyyUshMJR4VGyUEWogLhhnQKsaMo0XWzIoZv"
 const RCR_ADMIN = "UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY"
 const MAINNET_CONFIRMATION = 314159
+const METADATA_CONFIRMATION = 271828
 
 fun main() {
     val confirmation = env<int>("RCR_MAINNET_DEPLOY_CONFIRMATION");
@@ -25,7 +26,9 @@ fun main() {
     assert (adminAddress.getWorkchain() == 0) throw 1013;
 
     val imageUrl = env<string>("JETTON_IMAGE");
+    val metadataConfirmation = env<int>("RCR_MAINNET_METADATA_CONFIRMED");
     assert (imageUrl != null) throw 1014;
+    assert (metadataConfirmation != null && metadataConfirmation == METADATA_CONFIRMATION) throw 1015;
 
     val operatorAddress = promptJettonAddress(
         "RCR_MINING_OPERATOR_ADDRESS",
