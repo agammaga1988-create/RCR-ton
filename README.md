@@ -25,11 +25,14 @@ This is an engineering scaffold, not a deployed token or audited financial produ
 
 ## Development
 
-Requirements: Node.js 20+, pnpm 9+.
+Requirements: Node.js 22+, pnpm 9+.
 
 ```bash
 pnpm install
 pnpm check
+pnpm contracts:build
 ```
+
+The TEP-74 Jetton master/wallet reference source is under `contracts/src`; the master adds an immutable maximum-supply guard. Its build is enforced in CI. The separate rewards vault, reward claims, wallet configuration, and testnet deployment are not complete yet.
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) before implementing or enabling production functionality.
