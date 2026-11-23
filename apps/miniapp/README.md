@@ -9,7 +9,7 @@ pnpm install
 pnpm --filter @rcr/miniapp start
 ```
 
-The server listens on `127.0.0.1:4173` by default. Set `HOST`, `PORT`, and `RCR_API_BASE` as needed. The API base defaults to the same origin; when the API is deployed separately, configure a same-origin reverse proxy or a dedicated, explicitly configured HTTPS API origin with matching CORS policy.
+The server listens on `127.0.0.1:4173` by default. Set `HOST` and `PORT` as needed. The Mini App calls `/sessions` on its own origin. In deployment, route `/sessions` to the API through a same-origin reverse proxy; cross-origin API calls are intentionally not enabled.
 
 ## Telegram setup
 
