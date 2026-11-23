@@ -88,3 +88,11 @@ struct MiningIssuerDataReply {
     totalPending: coins
     paused: bool
 }
+
+fun MiningIssuerStorage.load() {
+    return MiningIssuerStorage.fromCell(contract.getData());
+}
+
+fun MiningIssuerStorage.save(self) {
+    contract.setData(self.toCell());
+}
