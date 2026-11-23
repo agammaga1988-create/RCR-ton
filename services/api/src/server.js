@@ -190,7 +190,7 @@ server.listen(port, host, () => {
   const boundAddress = server.address();
   const boundPort = boundAddress && typeof boundAddress === "object" ? boundAddress.port : port;
   if (process.env.NODE_ENV !== "test" || process.env.RCR_TEST_SERVER_PORT === "1") {
-    process.stdout.write(`RCR API listening on http://${host}:${boundPort}\\n`);
+    process.stdout.write(`RCR API listening on http://${host}:${boundPort}\n`);
   }
 });
 
