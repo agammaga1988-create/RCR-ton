@@ -1,14 +1,15 @@
 import "@acton/env"
 import "@acton/emulation/scripts"
 import "@acton/io"
+import "@acton/fmt"
 import "@wrappers/JettonMinter.gen"
 import "utils/common"
 
 const RCR_ADMIN = "UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY"
-const MAINNET_CONFIRMATION = "AUTHORIZE RCR MINING ISSUER"
+const MAINNET_CONFIRMATION = 271828
 
 fun main() {
-    val confirmation = env<string>("RCR_MAINNET_ADMIN_CONFIRMATION");
+    val confirmation = env<int>("RCR_MAINNET_ADMIN_CONFIRMATION");
     assert (confirmation != null && confirmation == MAINNET_CONFIRMATION) throw 1020;
 
     val adminWallet = scripts.wallet("rcr-mainnet-admin");
