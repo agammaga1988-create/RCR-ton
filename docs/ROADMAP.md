@@ -22,8 +22,11 @@
 ## Phase 2 — Reward accounting and contracts
 - [ ] Deterministic reward schedule with integer-only arithmetic and formula versioning.
 - [ ] Atomic 400,000,000 RCR rewards allocation accounting.
-- [ ] Tact token and claim contract design with formal interface review.
-- [ ] Unit, property, fuzz, and adversarial contract tests.
+- [x] Interim TEP-74 Jetton master/wallet reference source with immutable max-supply mint guard.
+- [ ] Migrate interim Tact source to the current TON-recommended Tolk/Acton toolchain before production.
+- [ ] Separate 400,000,000 RCR reward vault with replay-safe claims and tested bounce/retry semantics.
+- [ ] Deploy-script validation for zero genesis supply, approved decimals, and the 1,000,000,000 RCR base-unit cap.
+- [ ] Sandbox transaction tests, property/fuzz tests, and adversarial contract tests (current static source checks are not a substitute).
 - [ ] Testnet deployment, indexer reconciliation, and replay-protected claim flow.
 - [ ] Treasury controls, multisig, pause roles, and event monitoring.
 
