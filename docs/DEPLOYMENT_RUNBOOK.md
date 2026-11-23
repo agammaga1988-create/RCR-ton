@@ -94,30 +94,47 @@ acton script scripts/deploy.tolk
 Only after the local simulation is reviewed should the named command `acton run deploy-rcr-testnet` be used. That command is pinned to `--net testnet`; do not replace it with a mainnet command.
 
 
-## 7A. Guarded owner-specific Mainnet command
+## 7A. Guarded owner-specific Mainnet commands
 
-A separate Mainnet script is checked in at `contracts/tolk/scripts/deploy-mainnet.tolk`. It is intentionally not run by CI. It:
+The Mainnet flow is split into two independently signed phases because the deployment and administrator addresses are different and TON Connect authorizes one connected wallet per session.
+
+**Phase 1 — deployer wallet:** `contracts/tolk/scripts/deploy-mainnet.tolk`:
 - refuses to proceed unless `RCR_MAINNET_DEPLOY_CONFIRMATION=DEPLOY RCR MAINNET`;
-- requires the locally selected deployment signer to resolve to the owner's supplied deployment address;
-- requires the locally selected admin signer to resolve to the separately supplied admin address;
-- requires a non-empty `JETTON_IMAGE` value before deployment;
-- fixes the network to Mainnet through the named Acton command;
-- fixes 9 decimals and zero genesis supply, enforces the 1B maximum supply and the 600M/400M issuer caps, and verifies the MiningIssuer is paused after deployment.
+- connects through TON Connect and checks that the connected wallet exactly matches the owner's supplied deployment address;
+- uses the separately supplied admin address as Jetton admin/public issuer;
+- requires a non-empty `JETTON_IMAGE` value;
+- fixes the network to Mainnet, precision to 9 decimals and genesis supply to zero;
+- deploys the Jetton master and MiningIssuer, which starts paused;
+- prints both deployed contract addresses. It intentionally does not authorize the issuer yet.
 
-The intended local invocation (only after all release gates below are met) is:
+**Phase 2 — admin wallet:** `contracts/tolk/scripts/configure-mainnet-mining-issuer.tolk`:
+- requires `RCR_MAINNET_ADMIN_CONFIRMATION=AUTHORIZE RCR MINING ISSUER`;
+- opens a separate TON Connect session and checks the connected wallet against the owner-provided admin address;
+- requires the two contract addresses printed by Phase 1;
+- verifies the minter admin/public issuer and that no issuer is already configured;
+- sends the one-time issuer authorization and verifies the resulting on-chain address.
+
+Use the local Acton CLI from `contracts/tolk` only after local emulation and a testnet rehearsal have passed:
 
 ```sh
 cd contracts/tolk
 export RCR_MAINNET_DEPLOY_CONFIRMATION="DEPLOY RCR MAINNET"
-export JETTON_DEPLOYER="<locally configured Acton wallet name for the owner-provided deployment address>"
-export JETTON_ADMIN_WALLET="<locally configured Acton wallet name for the owner-provided admin address>"
 export JETTON_IMAGE="https://<owner-controlled-host>/rcr-icon.png"
-acton script scripts/deploy-mainnet.tolk --net mainnet
+acton run deploy-rcr-mainnet
 ```
 
-Acton wallet names must refer to local owner-controlled signers whose derived addresses match the two hard-coded public addresses. A public address is not a signer. The deployer wallet must hold sufficient TON for both deployments and configuration; the admin wallet must be able to authorize MiningIssuer configuration. Never export or paste mnemonic/private keys into the shell history, GitHub, CI, or chat. Use the wallet's supported local signer mechanism.
+Record the printed `MINTER_ADDRESS` and `MINING_ISSUER_ADDRESS`. Then connect the admin wallet in the separate session:
 
-This command creates contracts with zero genesis supply; it does not configure fees, marketing allocations, vesting, rewards formula, withdrawals, or launch liquidity. The MiningIssuer remains paused. The script has not been executed and no Mainnet transaction has been submitted.
+```sh
+export RCR_MAINNET_ADMIN_CONFIRMATION="AUTHORIZE RCR MINING ISSUER"
+export RCR_MINTER_ADDRESS="<printed minter address>"
+export RCR_MINING_ISSUER_ADDRESS="<printed mining issuer address>"
+acton run configure-rcr-mainnet-mining-issuer
+```
+
+The connected deployment wallet must hold sufficient TON for both contract deployments and their storage/gas. The admin wallet must hold enough TON for its authorization message. The user must review and approve each TON Connect transaction in their wallet. A public address is not a signer. Never export or paste mnemonic/private keys into shell history, GitHub, CI, or chat.
+
+This flow creates contracts with zero genesis supply; it does not configure fee collection, marketing allocations, vesting, reward formulas, withdrawals, or launch liquidity. The MiningIssuer remains paused until a separately approved policy is implemented and enabled. These scripts have not been executed and no Mainnet transaction has been submitted.
 
 ## 8. Testnet acceptance
 
