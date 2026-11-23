@@ -22,7 +22,8 @@
 ## Phase 2 — Reward accounting and contracts
 - [ ] Deterministic reward schedule with integer-only arithmetic and formula versioning.
 - [ ] Atomic 400,000,000 RCR rewards allocation accounting.
-- [x] TEP-74/TEP-89 Jetton v2.1 on Tolk/Acton with RCR max-supply enforcement and privileged code upgrades disabled.
+- [x] TEP-74/TEP-89 Jetton v2.1 on Tolk/Acton with RCR lifetime max-supply enforcement, burns not restoring mint capacity, and privileged code upgrades disabled.
+- [ ] Enforce separate 600,000,000 public-issuer and 400,000,000 mining-issuer caps in the minter before deployment.
 - [ ] Separate 400,000,000 RCR reward vault with replay-safe claims and tested bounce/retry semantics.
 - [x] Guarded Testnet deployment script: zero genesis supply, explicit decimals (0–18), integer-derived 1,000,000,000 RCR cap; CI checks the script.
 - [x] Acton transaction-level Jetton suite (77 tests), RCR over-cap mint regression, and decimals/base-unit cap tests; [ ] additional property/fuzz tests for the reward vault.
