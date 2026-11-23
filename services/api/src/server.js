@@ -140,6 +140,9 @@ async function handleCurrentSession(req, res) {
       userId = typeof body.userId === "string" ? body.userId.trim() : "";
       if (!userId || userId.length > 128) return send(res, 400, { error: "invalid_user_identity" });
     }
+    if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+      return send(res, 503, { error: "database_not_configured" });
+    }
     const session = process.env.DATABASE_URL
       ? await getCurrentEarningSession(userId)
       : sessions.get(userId) || null;
