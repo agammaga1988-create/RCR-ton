@@ -23,6 +23,14 @@ const server = createServer(async (req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "text/plain; charset=utf-8", "Method not allowed");
   const path = (req.url || "/").split("?")[0];
   if (path === "/health") return send(res, 200, "application/json; charset=utf-8", JSON.stringify({ ok: true }));
+  if (path === "/app.js") {
+    try {
+      const body = await readFile(join(root, "app.js"));
+      return send(res, 200, "text/javascript; charset=utf-8", req.method === "HEAD" ? "" : body);
+    } catch {
+      return send(res, 500, "text/plain; charset=utf-8", "Mini App script unavailable");
+    }
+  }
   if (path === "/config.js") {
     return send(res, 200, "text/javascript; charset=utf-8", `window.RCR_CONFIG = Object.freeze({ apiBase: ${JSON.stringify(apiBase)} });`);
   }
