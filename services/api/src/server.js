@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { startSession, TOKEN } from "@rcr/shared";
 import { verifyTelegramInitData } from "./telegram-auth.js";
-import { createEarningSession, closePool } from "./database.js";
+import { createEarningSession, getCurrentEarningSession, closePool } from "./database.js";
 
 const sessions = new Map();
 const requestWindows = new Map();
@@ -126,6 +126,42 @@ async function handleSession(req, res) {
   }
 }
 
+
+async function handleCurrentSession(req, res) {
+  if (!allowSessionRequest(req)) return send(res, 429, { error: "rate_limit_exceeded" });
+  try {
+    const body = await readJsonBody(req);
+    let userId;
+    if (process.env.TELEGRAM_BOT_TOKEN) {
+      const identity = verifyTelegramInitData(body.initData, process.env.TELEGRAM_BOT_TOKEN);
+      userId = identity.telegramUserId;
+    } else {
+      if (process.env.NODE_ENV === "production") return send(res, 503, { error: "telegram_auth_not_configured" });
+      userId = typeof body.userId === "string" ? body.userId.trim() : "";
+      if (!userId || userId.length > 128) return send(res, 400, { error: "invalid_user_identity" });
+    }
+    const session = process.env.DATABASE_URL
+      ? await getCurrentEarningSession(userId)
+      : sessions.get(userId) || null;
+    if (!session || session.endsAt <= Math.floor(Date.now() / 1000)) {
+      return send(res, 404, { error: "active_session_not_found" });
+    }
+    return send(res, 200, { session });
+  } catch (error) {
+    const authErrors = new Set([
+      "invalid_init_data", "invalid_init_data_signature", "missing_init_data_hash",
+      "duplicate_init_data_field", "invalid_auth_date", "auth_date_in_future",
+      "init_data_expired", "invalid_telegram_user", "telegram_bot_token_not_configured",
+      "invalid_verification_clock",
+    ]);
+    if (authErrors.has(error.message)) return send(res, 401, { error: error.message });
+    if (error.statusCode) return send(res, error.statusCode, { error: error.message });
+    if (error instanceof SyntaxError) return send(res, 400, { error: "invalid_json" });
+    process.stderr.write("RCR API current-session request failed\\n");
+    return send(res, 500, { error: "internal_server_error" });
+  }
+}
+
 const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/health") {
     return send(res, 200, { ok: true, service: "rcr-api" });
@@ -140,6 +176,7 @@ const server = createServer(async (req, res) => {
     });
   }
   if (req.method === "POST" && req.url === "/sessions") return handleSession(req, res);
+  if (req.method === "POST" && req.url === "/sessions/current") return handleCurrentSession(req, res);
   return send(res, 404, { error: "not_found" });
 });
 
