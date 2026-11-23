@@ -45,6 +45,14 @@ fun onBouncedMessage(in: InMessageBounced) {
     storage.totalSupply -= msg.jettonAmount;
     storage.totalMinted -= msg.jettonAmount;
     storage.save();
+
+    val failureMsg = createMessage({
+        bounce: BounceMode.NoBounce,
+        dest: msg.sendExcessesTo!,
+        value: 0,
+        body: MintFailureNotification { queryId: msg.queryId },
+    });
+    failureMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_IGNORE_ERRORS);
 }
 
 fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
