@@ -177,6 +177,9 @@ test("API CORS allows only the configured HTTPS Mini App origin", async () => {
     });
     assert.equal(allowed.status, 204);
     assert.equal(allowed.headers.get("access-control-allow-origin"), "https://rcr.example");
+    const actual = await fetch(base + "/sessions", { method: "POST", headers: { Origin: "https://rcr.example", "content-type": "application/json" }, body: "{}" });
+    assert.equal(actual.status, 400);
+    assert.equal(actual.headers.get("access-control-allow-origin"), "https://rcr.example");
     const denied = await fetch(base + "/sessions", { method: "OPTIONS", headers: { Origin: "https://attacker.example" } });
     assert.equal(denied.status, 403);
   } finally { child.kill("SIGTERM"); }
