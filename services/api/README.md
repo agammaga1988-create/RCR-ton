@@ -9,3 +9,7 @@ API service responsibilities:
 - No claim-registration, payout, or withdrawal endpoint is currently exposed; no endpoint accepts arbitrary reward amounts from clients.
 
 Secrets must be supplied through deployment secret storage, never committed.
+
+## Production configuration
+
+Required: `NODE_ENV=production`, `DATABASE_URL` (TLS PostgreSQL), `TELEGRAM_BOT_TOKEN` (secret manager only), `HOST=0.0.0.0`, and `RCR_PUBLIC_URL` set to the exact Mini App HTTPS origin. The API handles CORS preflight only for that exact origin; it does not use wildcard CORS. The Mini App host sets `RCR_API_BASE` to this API's HTTPS origin.
