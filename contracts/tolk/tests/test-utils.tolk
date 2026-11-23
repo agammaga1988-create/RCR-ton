@@ -210,7 +210,7 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
     return false;
 }
 
-fun setupTest(initialSupply: int = 0, maxSupply: coins = grams("1000000000")): (JettonMinter, Treasury, Treasury) {
+fun setupTest(initialSupply: int = 0, maxSupply: coins = grams("1000")): (JettonMinter, Treasury, Treasury) {
     val deployer = testing.treasury("deployer");
     val notDeployer = testing.treasury("not-deployer");
 
