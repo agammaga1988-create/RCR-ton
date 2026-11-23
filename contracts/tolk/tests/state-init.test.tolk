@@ -8,20 +8,20 @@ import "test-utils"
 import "../src/fees-management"
 import "../src/messages"
 import "../src/storage"
+import "../src/tokenomics"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
 
-const MAX_JETTON_VALUE = 0xffffffffffffffffffffffffffffff
-
-get fun `test state: should mint max jetton value`() {
+get fun `test state: should mint maximum public issuer allocation`() {
     val (minter, deployer, _) = setupTest();
+    val maxJettonValue = rcrPublicIssuanceCapBaseUnits();
     val wallet = userWallet(minter, deployer.address);
 
     val mintResult = minter.sendMint(
         deployer.address,
         deployer.address,
-        MAX_JETTON_VALUE,
+        maxJettonValue,
         grams("0.05"),
         grams("0.3"),
     );
@@ -34,7 +34,7 @@ get fun `test state: should mint max jetton value`() {
         to: wallet.address,
     });
 
-    expect(wallet.getJettonBalance()).toEqual(MAX_JETTON_VALUE);
+    expect(wallet.getJettonBalance()).toEqual(maxJettonValue);
     expect(minter.getTotalSupply()).toEqual(MAX_JETTON_VALUE);
 }
 
