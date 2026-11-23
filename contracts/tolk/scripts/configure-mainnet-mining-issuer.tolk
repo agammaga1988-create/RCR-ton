@@ -3,6 +3,7 @@ import "@acton/emulation/scripts"
 import "@acton/io"
 import "@acton/fmt"
 import "@wrappers/JettonMinter.gen"
+import "@wrappers/utils"
 import "utils/common"
 
 const RCR_ADMIN = "UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY"
