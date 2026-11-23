@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHmac } from "node:crypto";
 
 async function startApi(extraEnv = {}) {
   const port = 3400 + Math.floor(Math.random() * 400);
@@ -132,12 +133,27 @@ test("Mini App can restore an active development session after reload", async ()
   } finally { child.kill("SIGTERM"); }
 });
 
-test("production current-session endpoint rejects missing Telegram identity", async () => {
-  const { child, port } = await startApi({ NODE_ENV: "production", TELEGRAM_BOT_TOKEN: "test-token" });
+
+function makeTelegramInitData(botToken, authDate) {
+  const user = JSON.stringify({ id: 123456, first_name: "Test" });
+  const fields = [`auth_date=${authDate}`, `user=${user}`].sort();
+  const secret = createHmac("sha256", "WebAppData").update(botToken).digest();
+  const hash = createHmac("sha256", secret).update(fields.join("\n")).digest("hex");
+  return fields.join("&") + "&hash=" + hash;
+}
+
+test("production current-session endpoint fails closed without PostgreSQL", async () => {
+  const token = "123456:test-bot-token";
+  const { child, port } = await startApi({
+    NODE_ENV: "production", TELEGRAM_BOT_TOKEN: token, DATABASE_URL: ""
+  });
   try {
+    const initData = makeTelegramInitData(token, Math.floor(Date.now() / 1000));
     const response = await fetch("http://127.0.0.1:" + port + "/sessions/current", {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ initData: "" })
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ initData })
     });
-    assert.equal(response.status, 401);
+    assert.equal(response.status, 503);
+    assert.equal((await response.json()).error, "database_not_configured");
   } finally { child.kill("SIGTERM"); }
 });
