@@ -42,6 +42,7 @@ test("audit rows reject UPDATE and TRUNCATE", { skip: !enabled }, async () => {
     pool.query("UPDATE audit_events SET event_type = 'tampered' WHERE entity_id = $1", [session.id]),
     /append-only/
   );
+  await assert.rejects(pool.query("DELETE FROM audit_events WHERE entity_id = $1", [session.id]), /append-only/);
   await assert.rejects(pool.query("TRUNCATE audit_events"), /append-only/);
 });
 
