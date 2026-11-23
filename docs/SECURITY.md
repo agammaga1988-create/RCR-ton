@@ -38,8 +38,9 @@
 - The API rate limiter is process-local. Production deployments with multiple instances or reverse proxies must add a trusted edge/WAF limit and a shared distributed limiter; do not trust arbitrary client-supplied forwarding headers.
 - The migration runner uses a version ledger and PostgreSQL advisory lock; managed database role separation and restore rehearsal remain required. Use a dedicated migration role and a separate least-privilege runtime role.
 - PostgreSQL integration tests run in CI against PostgreSQL 16. Production backup/restore rehearsal, monitoring, and independent security review are still required.
-- Reward calculation, allocation accounting, claim authorization, treasury routing, and on-chain contracts are not yet enabled.
-- Telegram Mini App is still a preview; TON Connect requires a deployed HTTPS manifest and testnet verification. The Mini App UI currently starts sessions but does not connect wallets.
+- The Tolk/Acton Jetton and capped MiningIssuer contracts are implemented and transaction-tested in CI, but they are not independently audited or deployed. MiningIssuer remains paused; no API claim-registration endpoint or approved reward formula exists.
+- The Mini App includes TON Connect UI configured for testnet only. Wallet connection remains unavailable until a public HTTPS manifest is deployed and verified; the app does not request signatures, transfer funds, or enable withdrawals.
+- Production treasury routing, distributed abuse controls, managed hosting, monitoring, and disaster-recovery rehearsal remain incomplete.
 
 ## Mandatory rules
 
