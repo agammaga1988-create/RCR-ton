@@ -92,6 +92,11 @@ struct (0xcb862902) ChangeMinterMetadata {
     newMetadata: cell
 }
 
+struct (0x5b8d80f3) SetMiningIssuer {
+    queryId: uint64
+    miningIssuerAddress: address
+}
+
 struct (0xd372158c) TopUpTons {}
 
 // "forward payload" is TL/B `(Either Cell ^Cell)`;
