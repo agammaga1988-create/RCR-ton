@@ -53,7 +53,21 @@ After the HTTPS Mini App URL is live:
 
 Never paste the bot token into GitHub source, issue comments, chat messages, or frontend configuration.
 
-## 5. Wallet and testnet gate
+## 5. Owner-provided wallet details
+
+The owner supplied the following public TON addresses and confirmed 9 decimals on 2026-11-23:
+
+- Proposed deployment wallet: `UQDvqZ56PiYwhyyUshMJR4VGyUEWogLhhnQKsaMo0XWzIoZv`
+- Proposed RCR administrator wallet: `UQC-0SBzMfz36M1rqf3eik4igzLQBHcIItqzbWVIBd_1bsEY`
+- Confirmed token precision: **9 decimals**.
+
+These are recorded as owner-provided values only; this repository has not independently verified wallet ownership or on-chain status. Both supplied friendly addresses use the Mainnet-style `UQ` prefix. They must not be passed to the testnet deployment command. Before any Mainnet transaction, verify both addresses on TON Mainnet using an independent wallet/address display and confirm the intended roles.
+
+Public addresses are not secrets. Never request or store a seed phrase or private key. Signing must happen locally in the owner's wallet or through an audited HSM/KMS signer; no signing key is to be placed in GitHub Actions. A public address alone cannot authorize a deployment or admin transaction.
+
+## 6. Testnet wallet and deployment gate
+
+The checked-in Acton script is explicitly testnet-only. Use separate testnet addresses and a testnet-funded signer for rehearsal; do not substitute the Mainnet addresses recorded above.
 
 Before testnet deployment, record and independently verify public addresses for:
 - Jetton master administrator / deployment owner
@@ -61,11 +75,9 @@ Before testnet deployment, record and independently verify public addresses for:
 - treasury
 - marketing allocation recipient
 
-Public addresses are not secrets. Never request or store a seed phrase or private key. Signing must happen locally in a wallet or through an audited HSM/KMS signer; no signing key is to be placed in GitHub Actions.
+The owner must approve the initial mint amount (currently zero), metadata URI, reward formula, complete remaining 600,000,000 RCR allocation, and governance/renunciation policy before constructor arguments are finalized. The 9-decimal precision is confirmed.
 
-The owner must explicitly confirm the proposed 9 token decimals (or approve a different precision and corresponding code/test update), initial mint amount, metadata URI, reward formula, complete remaining 600,000,000 RCR allocation, and governance/renunciation policy before constructor arguments can be finalized.
-
-## 6. Testnet deployment script
+## 7. Testnet deployment script
 
 The Acton script at `contracts/tolk/scripts/deploy.tolk` deploys both the TEP-74 Jetton master and the separate MiningIssuer, defaults genesis supply to zero, fixes precision at 9 decimals, and enforces 600,000,000 public / 400,000,000 mining lifetime caps. Select `JETTON_DEPLOYER` and `JETTON_ADMIN_WALLET`; optionally set `RCR_MINING_OPERATOR_ADDRESS` (defaults to the admin wallet). The admin wallet signs the one-time MiningIssuer authorization. The MiningIssuer is deployed paused, so no mining claims can be issued until the reward formula and eligibility policy are explicitly approved and the admin resumes it.
 
@@ -81,7 +93,7 @@ acton script scripts/deploy.tolk
 
 Only after the local simulation is reviewed should the named command `acton run deploy-rcr-testnet` be used. That command is pinned to `--net testnet`; do not replace it with a mainnet command.
 
-## 7. Testnet acceptance
+## 8. Testnet acceptance
 
 A testnet release requires:
 - successful build from a clean checkout;
@@ -91,6 +103,6 @@ A testnet release requires:
 - end-to-end Telegram Mini App session test against the testnet environment;
 - documented rollback/disable procedure.
 
-## 8. Mainnet prohibition
+## 9. Mainnet prohibition
 
-No mainnet deployment, token mint, paid reward, or withdrawal is authorized until the reward vault is implemented and tested, all allocations and wallet addresses are approved, a third-party smart-contract audit is complete, and the owner explicitly approves the final release.
+No mainnet deployment, token mint, paid reward, or withdrawal is authorized until the reward vault is implemented and tested, all allocations and wallet addresses are approved, an independent smart-contract audit is complete, and the owner explicitly approves the final release. No signing transaction is performed by this repository workflow.
