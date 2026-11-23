@@ -216,6 +216,7 @@ fun setupTest(initialSupply: int = 0, maxSupply: coins = 0xfffffffffffffffffffff
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,
+        totalMinted: initialSupply,
         maxSupply,
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
