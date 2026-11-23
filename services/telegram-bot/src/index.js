@@ -13,8 +13,17 @@ async function telegram(method, payload = {}) {
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(35_000),
   });
-  const result = await response.json();
-  if (!response.ok || !result.ok) throw new Error("Telegram API " + method + " failed");
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error("Telegram API " + method + " returned non-JSON HTTP " + response.status);
+  }
+  if (!response.ok || !result?.ok) {
+    const code = result?.error_code ?? response.status;
+    const description = result?.description ?? response.statusText ?? "Unknown Telegram API error";
+    throw new Error("Telegram API " + method + " failed (" + code + "): " + description);
+  }
   return result.result;
 }
 
@@ -60,6 +69,8 @@ async function shutdown() {
 }
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
+const botIdentity = await telegram("getMe");
+process.stdout.write("Telegram authentication verified for @" + botIdentity.username + "\\n");
 await telegram("deleteWebhook", { drop_pending_updates: false });
 await telegram("setMyCommands", { commands: [
   { command: "start", description: "Open the RCR Mini App" },
