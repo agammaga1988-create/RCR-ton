@@ -35,9 +35,10 @@ test("Mini App serves safe health and API configuration", async () => {
     assert.equal(appScript.status, 200);
     assert.match(await appScript.text(), /restoreSession/);
     const page = await fetch(base + "/");
-    assert.match(await page.text(), /<script src="\\/app.js" defer><\\/script>/);
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /24-hour earning sessions/);
+    const pageText = await page.text();
+    assert.ok(pageText.includes('<script src="/app.js" defer></script>'));
+    assert.match(pageText, /24-hour earning sessions/);
   } finally { child.kill("SIGTERM"); }
 });
 
