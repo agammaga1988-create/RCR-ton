@@ -33,6 +33,7 @@ get fun `test admin: deploy should create minter without bounce`() {
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
+        totalMinted: 0,
         maxSupply: 0xffffffffffffffffffffffffffffff,
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
@@ -318,4 +319,31 @@ get fun `test admin: mint cannot exceed the fixed max supply`() {
     });
     expect(minter.getTotalSupply()).toEqual(0);
     expect(userWallet(minter, deployer.address).getJettonBalance()).toEqual(0);
+}
+
+get fun `test admin: burning does not replenish lifetime mint cap`() {
+    val (minter, deployer, _) = setupTest(0, grams("25"));
+    val wallet = mintTo(minter, deployer, deployer.address, grams("25"));
+    expect(minter.getCumulativeMinted()).toEqual(grams("25"));
+
+    val burn = wallet.sendBurn(
+        deployer.address,
+        DEFAULT_BURN_MSG_VALUE,
+        grams("3"),
+        deployer.address,
+        null,
+    );
+    expect(burn).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
+    expect(burn).toHaveSuccessfulTx<BurnNotificationForMinter>({ from: wallet.address, to: minter.address });
+    expect(minter.getTotalSupply()).toEqual(grams("22"));
+    expect(minter.getCumulativeMinted()).toEqual(grams("25"));
+
+    val remint = minter.sendMint(deployer.address, deployer.address, grams("1"), grams("0.05"), grams("0.3"));
+    expect(remint).toHaveFailedTx<MintNewJettons>({
+        from: deployer.address,
+        to: minter.address,
+        exitCode: ERROR_MAX_SUPPLY,
+    });
+    expect(minter.getTotalSupply()).toEqual(grams("22"));
+    expect(minter.getCumulativeMinted()).toEqual(grams("25"));
 }
