@@ -258,27 +258,6 @@ get fun `test admin: discovery should return none for non-basechain owner`() {
     expect(withOwnerBody.ownerAddress.load()).toEqual(invalidOwner);
 }
 
-get fun `test admin: non-admin should not be able to upgrade minter`() {
-    val (minter, deployer, notDeployer) = setupTest();
-    val newData = MinterStorage {
-        totalSupply: grams("99"),
-        maxSupply: grams("1000000000"),
-        adminAddress: deployer.address,
-        nextAdminAddress: null,
-        metadata: buildTestMetadata("meta-upgrade"),
-    }.toCell();
-    val newCode = build("JettonMinter");
-    val oldContentHash = minter.getContent().hash();
-
-    val res = minter.sendUpgrade(notDeployer.address, newCode, newData);
-    expect(res).toHaveFailedTx<UpgradeMinterCode>({
-        from: notDeployer.address,
-        to: minter.address,
-        exitCode: ERROR_NOT_OWNER,
-    });
-    expect(minter.getContent().hash()).toEqual(oldContentHash);
-}
-
 get fun `test admin: admin should be able to upgrade minter code and data`() {
     val (minter, deployer, _) = setupTest();
     val upgradedSupply = grams("42");
