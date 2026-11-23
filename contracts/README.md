@@ -7,7 +7,9 @@ The primary implementation is now under `tolk/`, based on the TON reference-grad
 The RCR changes:
 - Add `maxSupply` and `totalMinted` to minter storage.
 - Reject mint operations that would exceed the configured lifetime maximum; burns do not replenish mint capacity.
-- Expose `get_max_supply()`.
+- Expose `get_max_supply()` and `get_cumulative_minted()`.
+- Enforce separate 600,000,000 RCR public-issuer and 400,000,000 RCR mining-issuer lifetime caps.
+- Keep the mining issuer unset at genesis and allow the admin to configure it exactly once; mint requests are authorized by issuer address, not merely by metadata admin.
 - Remove privileged code/data upgrade messages so the configured cap cannot be raised through an admin upgrade.
 - Add a regression test proving an over-cap mint fails without changing supply or wallet balance.
 
@@ -28,8 +30,8 @@ The Acton tests are transaction-level tests, not static source scans. The CI run
 
 The RCR Jetton source is not audited and is not approved for mainnet. The owner-approved token precision is 9 decimals; genesis supply remains zero. The following remain incomplete:
 - A separate 400,000,000 RCR reward vault with signed, replay-safe claims and tested bounce/retry handling.
-- Token decimals, exact base-unit cap, initial metadata and mint policy approval.
-- Testnet deployment script is scaffolded; execution still requires owner/deployer wallet and explicit decimals.
+- Initial metadata and final issuer-address verification.
+- Testnet deployment script is scaffolded; execution still requires the owner/deployer wallet and the mining-issuer contract address.
 - Telegram TON Connect integration and verified testnet manifest.
 - Testnet deployment, end-to-end rehearsal, independent security review and explicit owner release approval.
 
