@@ -51,7 +51,7 @@ export async function createEarningSession(telegramUserId, now = new Date()) {
     const inserted = await client.query(
       `INSERT INTO earning_sessions
        (id, user_id, status, starts_at, ends_at, reward_formula_version)
-       VALUES ($1, $2, 'active', $3::timestamptz, $3::timestamptz + INTERVAL '24 hours', 1)
+       VALUES ($1, $2, 'active', $3::timestamptz, $3::timestamptz + INTERVAL '24 hours', NULL)
        RETURNING id, status, starts_at, ends_at`,
       [id, userId, now]
     );
@@ -59,7 +59,7 @@ export async function createEarningSession(telegramUserId, now = new Date()) {
       `INSERT INTO audit_events
        (actor_type, actor_id, event_type, entity_type, entity_id, payload)
        VALUES ('user', $1, 'session.started', 'earning_session', $2, $3::jsonb)`,
-      [String(telegramUserId), id, JSON.stringify({ formulaVersion: 1 })]
+      [String(telegramUserId), id, JSON.stringify({ rewardFormulaVersion: null })]
     );
     await client.query("COMMIT");
     const row = inserted.rows[0];
