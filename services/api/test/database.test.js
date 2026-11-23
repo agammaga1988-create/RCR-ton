@@ -76,6 +76,10 @@ test("reward accounting migration installs a disabled policy and rejects invalid
   assert.equal(policy.rows[0].decimals, null);
   assert.equal(policy.rows[0].reward_rate_units, null);
   assert.equal(policy.rows[0].mining_cap_units, null);
+  await assert.rejects(
+    pool.query("UPDATE reward_program_config SET enabled = TRUE WHERE singleton = TRUE"),
+    error => error.code === "23514"
+  );
 
   const telegramUserId = testUserId();
   const session = await createEarningSession(telegramUserId);
