@@ -51,7 +51,7 @@ export async function createEarningSession(telegramUserId, now = new Date()) {
     const inserted = await client.query(
       `INSERT INTO earning_sessions
        (id, user_id, status, starts_at, ends_at, reward_formula_version)
-       VALUES ($1, $2, 'active', $3, $3 + INTERVAL '24 hours', 1)
+       VALUES ($1, $2, 'active', $3::timestamptz, $3::timestamptz + INTERVAL '24 hours', 1)
        RETURNING id, status, starts_at, ends_at`,
       [id, userId, now]
     );
