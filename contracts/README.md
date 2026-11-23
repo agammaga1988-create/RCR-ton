@@ -14,7 +14,7 @@ The build uses the pinned `@tact-lang/compiler@1.6.13` and Node.js 22. CI compil
 
 ## RCR supply control
 
-The master contract now requires a `maxSupply` constructor argument, rejects initial supply above it, and rejects mint operations that would exceed it. Deployment must set this value to the agreed base-unit representation of 1,000,000,000 RCR after token decimals are formally approved. Do not guess decimals or deploy with a guessed value.
+The master contract now requires a `maxSupply` constructor argument, rejects initial supply above it, and rejects mint operations that would exceed it. Deployment must set initial total supply to zero and set this value to the agreed base-unit representation of 1,000,000,000 RCR after token decimals are formally approved. The Tact constructor-parameter model does not provide an `init()` validation hook; the deployment script must reject nonzero genesis supply and verify the cap before submitting StateInit. Do not guess decimals or deploy with a guessed value.
 
 ## Compiler lifecycle warning
 
