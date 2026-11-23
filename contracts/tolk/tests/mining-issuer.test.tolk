@@ -12,10 +12,10 @@ import "../wrappers/JettonWallet.gen"
 import "../wrappers/MiningIssuer.gen"
 import "../wrappers/utils"
 
-fun deployMiningIssuer(minter: JettonMinter, admin: Treasury, operator: address): MiningIssuer {
+fun deployMiningIssuer(minter: JettonMinter, admin: Treasury, operatorAddress: address): MiningIssuer {
     val issuer = MiningIssuer.fromStorage(MiningIssuerStorage {
         adminAddress: admin.address,
-        operatorAddress: operator,
+        operatorAddress,
         minterAddress: minter.address,
         extra: MiningIssuerExtra {
             totalIssued: 0,
