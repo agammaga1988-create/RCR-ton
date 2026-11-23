@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { startSession, TOKEN } from "@rcr/shared";
+import { verifyTelegramInitData } from "./telegram-auth.js";
 
 const sessions = new Map();
 const port = Number(process.env.PORT || 3000);
@@ -26,22 +27,37 @@ const server = createServer((req, res) => {
     let raw = "";
     req.on("data", chunk => {
       raw += chunk;
-      if (raw.length > 4096) req.destroy();
+      if (Buffer.byteLength(raw, "utf8") > 16_384) {
+        send(res, 413, { error: "request_too_large" });
+        req.destroy();
+      }
     });
     req.on("end", () => {
       try {
         const body = JSON.parse(raw || "{}");
-        // Development-only identity stub. Production must validate Telegram initData server-side.
-        if (process.env.NODE_ENV === "production") {
-          return send(res, 503, { error: "Telegram authentication is not configured; session creation is disabled." });
+        let userId;
+        if (process.env.TELEGRAM_BOT_TOKEN) {
+          const identity = verifyTelegramInitData(body.initData, process.env.TELEGRAM_BOT_TOKEN);
+          userId = identity.telegramUserId;
+        } else {
+          if (process.env.NODE_ENV === "production") {
+            return send(res, 503, { error: "telegram_auth_not_configured" });
+          }
+          // Explicit local-development fallback only; never enabled in production.
+          userId = typeof body.userId === "string" ? body.userId : "";
         }
-        const userId = typeof body.userId === "string" ? body.userId : "";
         const current = sessions.get(userId);
         const session = startSession({ userId, nowSeconds: Math.floor(Date.now() / 1000), existingSession: current });
         sessions.set(userId, session);
         return send(res, 201, { session });
       } catch (error) {
-        return send(res, 400, { error: error.message });
+        const authErrors = new Set([
+          "invalid_init_data", "invalid_init_data_signature", "missing_init_data_hash",
+          "duplicate_init_data_field", "invalid_auth_date", "auth_date_in_future",
+          "init_data_expired", "invalid_telegram_user", "telegram_bot_token_not_configured"
+        ]);
+        const status = authErrors.has(error.message) ? 401 : 400;
+        return send(res, status, { error: error.message || "invalid_request" });
       }
     });
     return;
