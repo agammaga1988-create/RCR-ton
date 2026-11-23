@@ -5,6 +5,7 @@ import "jetton-utils"
 import "messages"
 import "sharding"
 import "storage"
+import "tokenomics"
 
 contract JettonMinter {
     author: "The Tolk Team"
@@ -22,6 +23,7 @@ type AllowedMessageToMinter =
     | ClaimMinterAdmin
     | DropMinterAdmin
     | ChangeMinterMetadata
+    | SetMiningIssuer
     | TopUpTons
 
 fun onBouncedMessage(in: InMessageBounced) {
@@ -30,6 +32,14 @@ fun onBouncedMessage(in: InMessageBounced) {
     val msg = lazy InternalTransferStep.fromSlice(in.bouncedBody);
 
     var storage = lazy MinterStorage.load();
+    assert (msg.sendExcessesTo != null) throw ERROR_INVALID_MESSAGE;
+    if (msg.sendExcessesTo! == storage.publicIssuerAddress) {
+        storage.publicIssued -= msg.jettonAmount;
+    } else if (storage.miningIssuerAddress != null && msg.sendExcessesTo! == storage.miningIssuerAddress!) {
+        storage.miningIssued -= msg.jettonAmount;
+    } else {
+        throw ERROR_INVALID_ISSUER;
+    }
     storage.totalSupply -= msg.jettonAmount;
     storage.totalMinted -= msg.jettonAmount;
     storage.save();
@@ -109,10 +119,9 @@ fun onInternalMessage(in: InMessage) {
 
         MintNewJettons => {
             var storage = lazy MinterStorage.load();
-            assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
 
-            val internalTransferMsg = lazy msg
+            var internalTransferMsg = msg
                 .internalTransferMsg
                 .load({ throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
@@ -121,7 +130,18 @@ fun onInternalMessage(in: InMessage) {
             // a little more than needed, it’s ok since it’s sent by the admin and excesses will return back
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
 
+            assert (internalTransferMsg.jettonAmount > 0) throw ERROR_INVALID_MESSAGE;
+            if (in.senderAddress == storage.publicIssuerAddress) {
+                assert (storage.publicIssued + internalTransferMsg.jettonAmount <= rcrPublicIssuanceCapBaseUnits()) throw ERROR_ISSUER_CAP;
+                storage.publicIssued += internalTransferMsg.jettonAmount;
+            } else if (storage.miningIssuerAddress != null && in.senderAddress == storage.miningIssuerAddress!) {
+                assert (storage.miningIssued + internalTransferMsg.jettonAmount <= rcrMiningIssuerCapBaseUnits()) throw ERROR_ISSUER_CAP;
+                storage.miningIssued += internalTransferMsg.jettonAmount;
+            } else {
+                throw ERROR_NOT_OWNER;
+            }
             assert (storage.totalMinted + internalTransferMsg.jettonAmount <= storage.maxSupply) throw ERROR_MAX_SUPPLY;
+            internalTransferMsg.sendExcessesTo = in.senderAddress;
             storage.totalSupply += internalTransferMsg.jettonAmount;
             storage.totalMinted += internalTransferMsg.jettonAmount;
             storage.save();
@@ -140,9 +160,18 @@ fun onInternalMessage(in: InMessage) {
                     jettonWalletCode,
                 ),
                 value: msg.tonAmount,
-                body: msg.internalTransferMsg,
+                body: internalTransferMsg.toCell(),
             });
             deployMsg.send(SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+        }
+
+        SetMiningIssuer => {
+            var storage = lazy MinterStorage.load();
+            assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
+            assert (storage.miningIssuerAddress == null) throw ERROR_ISSUER_ALREADY_SET;
+            assert (msg.miningIssuerAddress != storage.publicIssuerAddress) throw ERROR_INVALID_ISSUER;
+            storage.miningIssuerAddress = msg.miningIssuerAddress;
+            storage.save();
         }
 
         ChangeMinterAdmin => {
@@ -189,7 +218,7 @@ get fun get_jetton_data(): JettonDataReply {
 
     return {
         totalSupply: storage.totalSupply,
-        mintable: storage.adminAddress != null,
+        mintable: true,
         adminAddress: storage.adminAddress,
         jettonContent: storage.metadata as Cell<OnchainMetadataReply>,
         jettonWalletCode,
@@ -209,6 +238,26 @@ get fun get_next_admin_address(): address? {
 get fun get_cumulative_minted(): coins {
     val storage = lazy MinterStorage.load();
     return storage.totalMinted;
+}
+
+get fun get_public_issuer_address(): address {
+    val storage = lazy MinterStorage.load();
+    return storage.publicIssuerAddress;
+}
+
+get fun get_mining_issuer_address(): address? {
+    val storage = lazy MinterStorage.load();
+    return storage.miningIssuerAddress;
+}
+
+get fun get_public_issued(): coins {
+    val storage = lazy MinterStorage.load();
+    return storage.publicIssued;
+}
+
+get fun get_mining_issued(): coins {
+    val storage = lazy MinterStorage.load();
+    return storage.miningIssued;
 }
 
 get fun get_max_supply(): coins {
