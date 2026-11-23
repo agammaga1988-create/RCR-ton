@@ -29,6 +29,7 @@ type AllowedMessageToMiningIssuer =
     | ChangeMiningOperator
     | PauseMining
     | ResumeMining
+    | TopUpTons
 
 fun sendMiningMint(
     minterAddress: address,
@@ -183,6 +184,10 @@ fun onInternalMessage(in: InMessage) {
             extra.paused = true;
             storage.extra = extra.toCell();
             storage.save();
+        }
+
+        TopUpTons => {
+            // Accept TON funding for gas and future claim transfers.
         }
 
         ResumeMining => {
